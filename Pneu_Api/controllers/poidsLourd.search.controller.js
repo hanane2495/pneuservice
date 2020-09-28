@@ -255,7 +255,7 @@ exports.searchPneusController = (req, res) => {
        })
    }else{
        pool.connect((err, db, done) => {
-           //type de pneu !== tous position !== tous marque !== tous
+           //type de pneu !== tous position !== tous marque !== tous image_marque
            const requetegenerale1='select id_pneu_pl, designation_pl, collection, type, marque, largeur, hauteur, diametre, charge, vitesse, position, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(prix,0) as price, image_pneu, image_1, image_2, img_marque from pneu_poids_lourds, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_poids_lourds.id_pneu_pl and mapping_pneu_four.id_pneu_fournisseur = stock.id_supplier and mapping_pneu_four.designation = pneu_poids_lourds.designation_pl and largeur=$1 and hauteur=$2 and diametre=$3 and type=$4 and position=$5 and marque=$6 order by id_pneu_pl'
            const requete1='select id_pneu_pl, designation_pl, collection, type, marque, largeur, hauteur, diametre, charge, vitesse, position, carburant, adherence, bruit, promo, marge, image_pneu, image_1, image_2, img_marque from pneu_poids_lourds where largeur=$1 and hauteur=$2 and diametre=$3 and type=$4 and position=$5 and marque=$6 order by id_pneu_pl'
            const parametres1 = [req.body.largeur, req.body.hauteur, req.body.diametre, req.body.type, req.body.position, req.body.marque]

@@ -17,7 +17,7 @@ import adherence from '../assets/adherence.jpg'
 import carburant from '../assets/carburant.jpg'
 
 const Styles = styled.div`
-   padding : 0 8%;
+   padding : 5% 8%;
    scroll-behavior: smooth;
 
    .resultat{

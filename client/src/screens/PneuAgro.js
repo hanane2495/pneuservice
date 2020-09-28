@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
-import { Link, useRouteMatch, Route } from 'react-router-dom';
-import {Nav, Tab, Row, Col, Form, TabContainer} from 'react-bootstrap'
+import { Link } from 'react-router-dom';
+import {Nav, Tab, Row, Col, Form} from 'react-bootstrap'
 import styled from 'styled-components';
 import { motion} from "framer-motion";
 import axios from 'axios'
@@ -21,7 +21,6 @@ import {AiFillCaretRight} from 'react-icons/ai'
 import Recommandation from '../components/Recommandation'
 import Coordonnee from '../components/Coordonnee'
 import Navbar from '../components/Navbar'
-import SearchResult from '../components/SearchResult';
 
 
 const Styles = styled.div`
@@ -179,8 +178,7 @@ margin-top:2%;
     }
 `
 
-function Home(props){
-    let match = useRouteMatch();
+function Home(){
 
     //search styling
     const [key, setKey] = useState("dimension");
@@ -205,61 +203,25 @@ function Home(props){
         largeur :'-- --', 
         hauteur :'-- --',
         diametre :'-- --',
-        charge :'-- --', 
-        vitesse:'Tous',
+        type:'Tous',
         marque :'Tous'
     })
-    const [formDataVehicule, setFormDataVehicule] = useState({
-        marque :'-- --', 
-        modele :'-- --',
-        motorisation : '-- --',
-        annee :'-- --', 
-        taille:'-- -- -- --'
-    })
-    const [parametres, setParametres] = useState({
-        largeur :'', 
-        hauteur :'',
-        diametre :'',
-        charge :'', 
-        vitesse:'',
-    })
-    const [typeRecherche, setTypeRecherche] = useState('dimension')
-    const [resultat, setResultat] = useState([])
 
     //les dimensions 'dimension'
     const [largeurs, setLargeurs]= useState([]);
     const [hauteurs, setHauteurs]= useState([]);
     const [diametres, setDiametres]= useState([]);
-    const [charges, setCharges]= useState([]);
-    const [vitesses, setVitesses] = useState([]);
+    const [types, setTypes] = useState([]);
     const [marques, setMarques]= useState([]);
     
-    //les dimensions vehicule
-    const [marqueVs, setMarqueVs] = useState([]);
-    const [modeles, setModeles] = useState([]);
-    const [motorisations, setMotorisations] = useState([]);
-    const [annees, setAnnees] = useState([]);
-    const [tailles, setTailles] = useState([]);
-
-    //
-    //const {largeur, hauteur, diametre, charge, vitesse, marque} = formDataDimension
-    //const {marqueV, modele, motorisation, annee, taille} = formDataVehicule
-
     //handle change from inputs
     const handleChangeDimension = text => e => {
-        setFormDataDimension({...formDataDimension, [text]: e.target.value})
-        
+        setFormDataDimension({...formDataDimension, [text]: e.target.value})  
     }
 
-    const handleChangeVehicule = text => e => {
-        setFormDataVehicule({...formDataVehicule, [text]: e.target.value})
-    }
-
-    //recherche par dimension
-    //get all Largeurs, vitesses et marques
-    
+    //get all largeurs
     useEffect(() => {
-        axios.get(`${process.env.REACT_APP_API_URL}/search/dimension/largeur`)
+        axios.post(`${process.env.REACT_APP_API_URL}/agricole/search/dimension/largeur`)
         .then(res => {
             var lars = []
             res.data.map((larg) => {
@@ -268,41 +230,8 @@ function Home(props){
             setLargeurs(lars.sort(function(a, b){return a-b})) 
             setFormDataDimension({...formDataDimension, 
                 hauteur:'-- --',
-                diametre:'-- --',
-                charge:'-- --'
+                diametre:'-- --'
             })
-        })
-        .catch(err => {
-            console.log(err)
-        })
-    }, [])
-    
-    useEffect(() => {
-        axios.post(`${process.env.REACT_APP_API_URL}/search/dimension/vitesse`)
-        .then(res => {
-            console.log('useEffect vitesse')
-
-            var vites = []
-            res.data.map((vit) => {
-                vites.push(vit.vitesse)
-            })
-            setVitesses(vites.sort()) 
-        })
-        .catch(err => {
-            console.log(err)
-        })
-    }, [])
-
-    useEffect(() => {
-        
-        axios.post(`${process.env.REACT_APP_API_URL}/search/dimension/marque`)
-        .then(res => {
-            console.log('useEffect vitesse')
-            var mars = []
-            res.data.map((mar) => {
-                mars.push(mar.marque)
-            })
-            setMarques(mars.sort()) 
         })
         .catch(err => {
             console.log(err)
@@ -312,7 +241,7 @@ function Home(props){
     //get hauteur depending on largeur
     useEffect(() => {
         var largeur = formDataDimension.largeur
-        axios.post(`${process.env.REACT_APP_API_URL}/search/dimension/hauteur`, {
+        axios.post(`${process.env.REACT_APP_API_URL}/agricole/search/dimension/hauteur`, {
             largeur
         })
         .then(res => {
@@ -326,7 +255,6 @@ function Home(props){
                 diametre:'-- --',
                 charge:'-- --'
             })
-            console.log('hauteur executed')
         })
         .catch(err => {
             console.log(err)
@@ -338,7 +266,7 @@ function Home(props){
     useEffect(() => {
         var largeur = formDataDimension.largeur
         var hauteur = formDataDimension.hauteur
-        axios.post(`${process.env.REACT_APP_API_URL}/search/dimension/diametre`, {
+        axios.post(`${process.env.REACT_APP_API_URL}/agricole/search/dimension/diametre`, {
             largeur, hauteur
         })
         .then(res => {
@@ -351,177 +279,54 @@ function Home(props){
             setFormDataDimension({...formDataDimension, 
                 charge:'-- --'
             })
-            console.log('diametre executed')
         })
         .catch(err => {
             console.log(err)
         })
     },[formDataDimension.hauteur])
 
-    //get charge depending on largeur et hauteur et diametre
+    //get type depending on largeur et hauteur et diametre
     useEffect(() => {
         var largeur = formDataDimension.largeur
         var hauteur = formDataDimension.hauteur
         var diametre = formDataDimension.diametre
-        axios.post(`${process.env.REACT_APP_API_URL}/search/dimension/charge`, {
+        axios.post(`${process.env.REACT_APP_API_URL}/agricole/search/dimension/type`, {
             largeur, hauteur, diametre
         })
         .then(res => {
-            var chars = []
+            var typs = []
             var collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
-            res.data.map((char) => {
-                chars.push(char.charge)
+            res.data.map((typ) => {
+                typs.push(typ.type)
             })
-            setCharges(chars.sort(collator.compare))
+            setTypes(typs.sort(collator.compare))
         })
         .catch(err => {
             console.log(err)
         })
     },[formDataDimension.diametre])
 
-    
-    //recherche par vehicule
-    //get all marques
+    //get type depending on largeur et hauteur et diametre
     useEffect(() => {
-        axios.post(`${process.env.REACT_APP_API_URL}/search/vehicule/marque`)
+        var largeur = formDataDimension.largeur
+        var hauteur = formDataDimension.hauteur
+        var diametre = formDataDimension.diametre
+        var type = formDataDimension.type
+        axios.post(`${process.env.REACT_APP_API_URL}/agricole/search/dimension/marque`, {
+            largeur, hauteur, diametre, type
+        })
         .then(res => {
-            
-            var marquesVehicule = []
+            var marqs = []
+            var collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
             res.data.map((marq) => {
-                marquesVehicule.push(marq.brand)
+                marqs.push(marq.marque)
             })
-            setMarqueVs(marquesVehicule.sort()) 
-            setFormDataDimension({...formDataDimension, 
-                modele :'-- --',
-                motorisation : '-- --',
-                annee :'-- --', 
-                taille:'-- --'
-            })
+            setMarques(marqs.sort(collator.compare))
         })
         .catch(err => {
             console.log(err)
         })
-    }, []);
-
-    //get all modeles depending on marques
-    useEffect(() => {
-        var marque = formDataVehicule.marque
-        console.log(marque)
-        axios.post(`${process.env.REACT_APP_API_URL}/search/vehicule/modele`, {
-             marque
-        })
-        .then(res => {
-            var modeles = []
-            res.data.map((mod) => {
-                modeles.push(mod.model)
-            })
-            setModeles(modeles.sort()) 
-            setFormDataDimension({...formDataDimension, 
-                motorisation : '-- --',
-                annee :'-- --', 
-                taille:'-- --'
-            })
-        })
-        .catch(err => {
-            console.log(err)
-        })
-    }, [formDataVehicule.marque]);
-
-    //get all motorisations depending on marques et modele
-    useEffect(() => {
-        var marque = formDataVehicule.marque
-        var modele = formDataVehicule.modele
-        axios.post(`${process.env.REACT_APP_API_URL}/search/vehicule/motorisation`, {
-            marque, modele
-        })
-        .then(res => {
-            var motorisations = []
-            var collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
-            res.data.map((mot) => {
-                motorisations.push(mot.engine)
-            })
-            setMotorisations(motorisations.sort()) 
-            setFormDataDimension({...formDataDimension, 
-                annee :'-- --', 
-                taille:'-- --'
-            })
-        })
-        .catch(err => {
-            console.log(err)
-        })
-    }, [formDataVehicule.modele]);
-
-    //get all annee depending on marque et modele et motorisation
-    useEffect(() => {
-        var marque = formDataVehicule.marque
-        var modele = formDataVehicule.modele
-        var motorisation = formDataVehicule.motorisation
-        axios.post(`${process.env.REACT_APP_API_URL}/search/vehicule/annee`,{
-             marque, modele, motorisation
-        })
-        .then(res => {
-            var annees = []
-            res.data.map((an) => {
-                annees.push(an.ad)
-            })
-            setAnnees(annees.sort()) 
-            setFormDataDimension({...formDataDimension, 
-                taille:'-- --'
-            })
-        })
-        .catch(err => {
-            console.log(err)
-        })
-    }, [formDataVehicule.motorisation]);
-
-    //get all tailles depending on marque et modele et motorisation et annee
-    useEffect(() => {
-        var marque = formDataVehicule.marque
-        var modele = formDataVehicule.modele
-        var motorisation = formDataVehicule.motorisation
-        var annee = formDataVehicule.annee
-        axios.post(`${process.env.REACT_APP_API_URL}/search/vehicule/taille`, {
-             marque, modele, motorisation, annee
-        })
-        .then(res => {
-            var tailles = []
-            var collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
-            res.data.map((taille) => {
-                tailles.push(taille.dimension_complete)
-            })
-            setTailles(tailles.sort(collator.compare)) 
-           
-        })
-        .catch(err => {
-            console.log(err)
-        })
-    }, [formDataVehicule.annee]);
-
-    //get largeur, hauteur, diametre, charge, vitesse
-    useEffect(() => {
-        var marque = formDataVehicule.marque
-        var modele = formDataVehicule.modele
-        var motorisation = formDataVehicule.motorisation
-        var annee = formDataVehicule.annee
-        var taille = formDataVehicule.taille
-        axios.post(`${process.env.REACT_APP_API_URL}/search/vehicule/params`,{
-            marque, modele, motorisation, annee, taille
-        })
-        .then(res => {
-            console.log(res.data[0])
-            console.log(res.data[0].largeur+' '+res.data[0].hauteur+' '+res.data[0].diametre+' '+res.data[0].charge)
-            setParametres({...parametres,
-                charge:res.data[0].charge,
-                largeur:res.data[0].largeur,
-                hauteur:res.data[0].hauteur,
-                diametre:res.data[0].diametre
-            })
-        })
-        .catch(err => {
-            console.log(err)
-        })
-    }, [formDataVehicule.taille]);
-
+    },[formDataDimension.type])
     return(
         <React.Fragment>
             <Styles>
@@ -565,7 +370,7 @@ function Home(props){
                                     <form >
                                         <div className='search-first-row'>
                                             <Form.Group className='search-input' controlId="exampleForm.ControlSelect1">
-                                                <Form.Label>Type de pneu</Form.Label>
+                                                <Form.Label>Largeurs</Form.Label>
                                                 <Form.Control 
                                                     as="select"
                                                     value={formDataDimension.largeur}
@@ -578,7 +383,7 @@ function Home(props){
                                                 </Form.Control>
                                             </Form.Group>
                                             <Form.Group className='search-input' controlId="exampleForm.ControlSelect1">
-                                                <Form.Label>position</Form.Label>
+                                                <Form.Label>Serie</Form.Label>
                                                 <Form.Control 
                                                     as="select"
                                                     value={formDataDimension.hauteur}
@@ -591,7 +396,7 @@ function Home(props){
                                                 </Form.Control>
                                             </Form.Group>
                                             <Form.Group className='search-input' controlId="exampleForm.ControlSelect1">
-                                                <Form.Label>marque</Form.Label>
+                                                <Form.Label>Diametre</Form.Label>
                                                 <Form.Control as="select"
                                                     value={formDataDimension.diametre}
                                                     onChange={handleChangeDimension('diametre')}
@@ -603,37 +408,25 @@ function Home(props){
                                                 </Form.Control>
                                             </Form.Group>
                                             <Form.Group className='search-input' controlId="exampleForm.ControlSelect1">
-                                                <Form.Label>largeur</Form.Label>
+                                                <Form.Label>Type de pneu</Form.Label>
                                                 <Form.Control as="select"
-                                                    value={formDataDimension.charge}
-                                                    onChange={handleChangeDimension('charge')}
-                                                    >
-                                                        <option>-- --</option>
-                                                        {charges.map((charge) => 
-                                                            <option>{charge}</option>
-                                                        )}
-                                                </Form.Control>
-                                            </Form.Group>
-                                            <Form.Group className='search-input' controlId="exampleForm.ControlSelect1">
-                                                <Form.Label>serie</Form.Label>
-                                                <Form.Control as="select"
-                                                    value={formDataDimension.vitesse}
-                                                    onChange={handleChangeDimension('vitesse')}
+                                                    value={formDataDimension.type}
+                                                    onChange={handleChangeDimension('type')}
                                                     >
                                                         <option>Tous</option>
-                                                        {vitesses.map( (vitesse) => 
-                                                            <option>{vitesse}</option>
+                                                        {types.map((type) => 
+                                                            <option>{type}</option>
                                                         )}
                                                 </Form.Control>
                                             </Form.Group>
                                             <Form.Group className='search-input' controlId="exampleForm.ControlSelect1">
-                                                <Form.Label>diametre</Form.Label>
+                                                <Form.Label>Marque</Form.Label>
                                                 <Form.Control as="select"
                                                     value={formDataDimension.marque}
                                                     onChange={handleChangeDimension('marque')}
                                                     >
                                                         <option>Tous</option>
-                                                        {marques.map( (marque) => 
+                                                        {marques.map((marque) => 
                                                             <option>{marque}</option>
                                                         )}
                                                 </Form.Control>
@@ -641,7 +434,7 @@ function Home(props){
                                         </div>
                                         <div className='search-second-row'>
                                             <button type='submit' className='search-button'>
-                                                <Link to={`/selection/pneus/largeur=${formDataDimension.largeur}/hauteur=${formDataDimension.hauteur}/diametre=${formDataDimension.diametre}/charge=${formDataDimension.charge}`}>Rechercher</Link>                                        
+                                                <Link to={`/selection/pneus-agricole/largeur=${formDataDimension.largeur}/hauteur=${formDataDimension.hauteur}/diametre=${formDataDimension.diametre}/type=${formDataDimension.type}/marque=${formDataDimension.marque}`}>Rechercher</Link>                                        
                                             </button>
                                         </div>
                                     </form>
@@ -668,70 +461,4 @@ function Home(props){
     )
 }
 export default Home; 
-
-
-/**
- * 
- *  <img
-        src={`https://www.monsterstudio.org${image_url}`}
-        style={{margin:'0 0 28% 0', padding:'0'}}
-    />
- * <Product_Carousel/>
-
-
- {clicked ? <SearchResult resultat = {resultat} dimensions={formDataDimension} params={parametres} typeRecherche={typeRecherche}/> : 
- <div></div> }
- * 
-
-
-
- //submit data to backend
-    const handleSubmit = e => {
-    e.preventDefault()
-        setTypeRecherche('dimension')
-        var largeur = formDataDimension.largeur
-        var hauteur = formDataDimension.hauteur
-        var diametre = formDataDimension.diametre
-        var charge = formDataDimension.charge
-        var vitesse = formDataDimension.vitesse 
-        var marque = formDataDimension.marque
-        console.log(largeur+' '+hauteur+' '+diametre+' '+charge)
-    axios.post(`${process.env.REACT_APP_API_URL}/search/pneus`, {
-        largeur, hauteur, diametre, charge
-         }).then(res => {
-           setResultat(res.data)
-           console.log(res.data)
-         }).catch(err => {
-          console.log(err)
-         })   
-    }
-
-    const handleSubmitV = e => {
-        e.preventDefault()
-        setTypeRecherche('vehicule')
-            var largeur = parametres.largeur
-            var hauteur = parametres.hauteur
-            var diametre = parametres.diametre
-            var charge = parametres.charge
-            console.log(largeur+' '+hauteur+' '+diametre+' '+charge)
-        axios.post(`${process.env.REACT_APP_API_URL}/search/pneus`, {
-            largeur, hauteur, diametre, charge
-             }).then(res => {
-               setFormDataDimension({...formDataDimension,
-                largeur: parametres.largeur,
-                hauteur: parametres.hauteur,
-                diametre: parametres.diametre,
-                charge: parametres.charge,
-            })  
-               setResultat(res.data)
-               console.log(res.data)
-             }).catch(err => {
-              console.log(err)
-             })   
-        }
- */
-
-
-
-
 

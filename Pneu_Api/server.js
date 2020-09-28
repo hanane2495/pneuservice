@@ -37,12 +37,14 @@ const autosearchRouter = require('./routes/auto.search.route')
 const pneuRouter = require('./routes/pneu.route')
 const poidsLourdsRouter = require('./routes/poidsLourd.search.route')
 const motoRouter = require('./routes/moto.search.route')
+const agricoleRouter = require('./routes/agricole.search.route')
 
 //Use routes
 app.use('/api/', autosearchRouter)
 app.use('/api/', pneuRouter)
 app.use('/api/', poidsLourdsRouter)
 app.use('/api', motoRouter)
+app.use('/api/', agricoleRouter)
 
 
 const PORT = process.env.PORT

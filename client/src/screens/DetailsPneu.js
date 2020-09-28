@@ -1,11 +1,12 @@
 import React, {useState, useEffect} from 'react';
-import {useRouteMatch} from 'react-router-dom';
+import {useRouteMatch, Link} from 'react-router-dom';
 import styled from 'styled-components';
 import axios from 'axios'
-import {Form} from 'react-bootstrap'
+import {Form, Modal} from 'react-bootstrap'
 
 //components
 import Navbar from '../components/Navbar'
+import CommandeStepper from '../components/CommandeStepper'
 
 //icons
 import {FaCloudShowersHeavy, FaGasPump, FaVolumeUp} from 'react-icons/fa'
@@ -22,7 +23,6 @@ import pneu5_vente_budjet from '../assets/vente_budjet/SCORPION_VERDE_ALL_SEASON
 
 const Styles = styled.div`
     overflow-x:hidden;
-
 
 /*------------details container---------------*/
 .details-container{
@@ -206,7 +206,7 @@ ul{
     display:flex;
     flex-direction:column;
     justify-content:flex-start;
-    align-items:center;
+    align-items:flex-start;
     width:20%;
     height:100%;
     background:#eee;
@@ -216,9 +216,21 @@ ul{
 .quantite{
     display:flex;
     flex-direction:row;
-    justify-content:center;
+    justify-content:flex-start;
     width:100%;
     margin-top:3%;
+}
+ 
+.centre-mentage{
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-start;
+    width:100%;
+    margin-top:3%;
+} 
+
+div.form-group{
+    margin-bottom:0 !important;
 }
 
 .button-commande{
@@ -234,6 +246,12 @@ ul{
     padding:5% 8%;
 }
 /*------------fin details container-----------*/
+
+.info-Modal{
+    width:90%;
+    height:80%;
+}
+
 /*------------similar products---------------*/
 .similar-products{
     display:flex;
@@ -243,10 +261,74 @@ ul{
 }
 /*------------fin similar products------------*/
 `;
+const FormStyle = styled.form`
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
 
+    .form-row-1{
+        display:flex;
+        flex-direction:row;
+        justify-content:center;
+        align-items:center;
+        width:100%;
+    }
+
+    .form-input-1{
+        width:45%;
+        height:50px;
+        margin: 1.5%;
+        padding:2%;
+    }
+
+    .form-input-2{
+        width:93%;
+        height:50px;
+        margin: 1%;
+        padding:2%;
+    }
+
+    .form-row-2{
+        display:flex;
+        flex-direction:row;
+        justify-content:flex-end;
+        align-items:flex-end;
+        width:100%;
+        margin:5% 2% 0 0;
+    }
+
+    .form-button{
+        padding:1.5% 5%;
+        margin:2%;
+        border-radius:5px;
+        border:none;
+    }
+
+`;
 function Detail(){
     let match = useRouteMatch();
+
+    //show/hide Modal
+    const [show, setShow] = useState(false);
+
     const [pneu, setPneu] = useState([])
+    const [wilayas, setWilayas] = useState([])
+    const [total, setTotal] = useState(0)
+
+    //data management
+    const [commande, setCommande] = useState({
+        nom_client:'',
+        prenom_client: '',
+        email:'',
+        telephone:'',
+        pneu :'',
+        prix_pneu:0,
+        quantite :1, 
+        wilaya :'',
+        frais_livraison:0,
+        centre_montage :''
+    })
 
     const vente_budjet_content =[
         {
@@ -280,7 +362,26 @@ function Detail(){
             prix : '2560.00 Dz'
         }
     ]
-    
+
+    //handleChange commande 
+    const handleChangeCommande = text => e => {
+        if(text === 'wilaya'){
+            wilayas.map( (wilaya) => {
+                if( e.target.value.includes(wilaya.wilaya)){
+                    console.log(e.target.value.includes(wilaya.wilaya))
+                    setCommande({...commande, 
+                        frais_livraison : parseInt(wilaya.frais), 
+                        wilaya : e.target.value
+                    })
+                }
+            })
+            console.log(commande)
+        }else{
+            setCommande({...commande, [text]: e.target.value})
+            console.log(commande)
+        }
+    }
+
     useEffect(() => {
         var id = match.params.id_pneu
         axios.post(`${process.env.REACT_APP_API_URL}/pneu/details`, {
@@ -289,11 +390,40 @@ function Detail(){
         .then(res => {
             console.log(res.data[0])
            setPneu(res.data[0])
+           setTotal((parseInt(commande.quantite)) * (parseInt(res.data[0].price) + parseInt(commande.frais_livraison)))
         })
         .catch(err => {
             console.log(err)
         })
     }, []);
+
+    
+    useEffect(() => {
+        setTotal((parseInt(commande.quantite)) * (parseInt(pneu.price) + parseInt(commande.frais_livraison)))
+    console.log(total)
+    },[commande.quantite])
+
+    useEffect(() => {
+        setTotal((parseInt(commande.quantite)) * (parseInt(pneu.price) + parseInt(commande.frais_livraison)))
+    console.log(total)
+    },[commande.wilaya])
+
+
+    //handle livraison
+    useEffect(() => {
+        var categorie = 'leger'
+        axios.post(`${process.env.REACT_APP_API_URL}/pneu/Livraison`, {
+            categorie
+        })
+        .then(res => {
+            console.log(res.data)
+           setWilayas(res.data)
+        })
+        .catch(err => {
+            console.log(err)
+        })
+    }, []);
+
     return(
         <React.Fragment>
             <Navbar color='#262626'/>
@@ -387,7 +517,12 @@ function Detail(){
                             <p style={{margin:'2%', color:'red'}}>quantite</p>
                             <Form>
                                 <Form.Group controlId="exampleForm.SelectCustom">
-                                    <Form.Control as="select" custom>
+                                    <Form.Control 
+                                    as="select" 
+                                       custom
+                                       value={commande.quantite}
+                                       onChange={handleChangeCommande('quantite')}
+                                    >
                                     <option>1</option>
                                     <option>2</option>
                                     <option>3</option>
@@ -401,354 +536,93 @@ function Detail(){
                                     </Form.Control>
                                 </Form.Group>
                             </Form>
-                        </div>
-                        <button className='button-commande'>{pneu.price > 0 ? 'Commander' : 'Demmander devis'}</button>
-
+                            </div>
+                            <div className='quantite'>
+                                <p style={{margin:'2%', color:'red'}}>Wilaya</p>
+                                <Form>
+                                    <Form.Group controlId="exampleForm.SelectCustom">
+                                        <Form.Control 
+                                        as="select" 
+                                        custom
+                                        value={commande.wilaya}
+                                        onChange={handleChangeCommande('wilaya')}
+                                        >
+                                        <option>-- --</option>
+                                        {wilayas.map( (wilaya) => 
+                                            <option>{wilaya.wilaya}, ({parseInt(wilaya.frais) === 0 ? 'GRATUIT' : wilaya.frais+"DA"})</option>
+                                        )}
+                                        </Form.Control>
+                                    </Form.Group>
+                                </Form>
+                            </div>
+                            {commande.wilaya === 'Oran, (GRATUIT)' ? 
+                                <div className='centre-mentage'>
+                                    <p style={{margin:'2%', color:'red'}}>Un centre de montage ?</p>
+                                    <Form>
+                                        <Form.Group controlId="exampleForm.SelectCustom">
+                                            <Form.Control 
+                                            as="select" 
+                                            custom
+                                            value={commande.centre_montage}
+                                            onChange={handleChangeCommande('centre_montage')}
+                                            >
+                                            <option>-- --</option>
+                                            <option>SARL Senia Pneu</option>
+                                            <option>
+                                                EURL BFM Pneu
+                                            </option>
+                                            </Form.Control>
+                                        </Form.Group>
+                                    </Form>
+                                    <Link to='#' style={{margin:'0.5% 2%', color:'#555', textDecoration:'none'}}>Visiter le centre de mentage !</Link>
+                                </div>
+                            :   null 
+                            }
+                            {commande.wilaya === '' ? null : 
+                            <div>
+                                <p style={{margin:'50% 0 0.5% 2%', color:'red', textDecoration:'none'}}>Total : </p>
+                                <p style={{margin:'0.5% 2%', color:'#555', fontSize:'1.5em', width:'100%'}}>{total} DA</p>
+                            </div>
+                            }
+                        <button className='button-commande' onClick={() => setShow(true)}>{pneu.price > 0 ? 'Commander' : 'Demmander devis'}</button>
+                        <Modal
+                            size="lg"
+                            show={show}
+                            onHide={() => setShow(false)}
+                            aria-labelledby="example-modal-sizes-title-lg"
+                        >
+                            <Modal.Header closeButton>
+                            <Modal.Title id="example-modal-sizes-title-lg">
+                                Informations personnelles
+                            </Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <p className='text-commande'>Veuillez remplir les informations suivante pour valider votre commande !</p>
+                                <hr/>
+                                <FormStyle>
+                                    <CommandeStepper/>
+                                </FormStyle>
+                            </Modal.Body>
+                        </Modal>
                     </div>
                 </div>
-                <div className='similar-products'></div>
+                <div className='similar-products'>
+                </div>
             </Styles>            
         </React.Fragment>
     )
-    
 }
 export default Detail; 
 
 /**
- * 
-    {pneu.adherence}
-    {pneu.carburant}
-    {pneu.bruit}
-
-    {pneu.designation_pneu}
-    {pneu.marque}
-    {pneu.type} 
-    
-    
-    <div className='product-container'>
-                <div className='left-side'>
-                    {pneu.image_url === null ? 
-                        <div className='default-img'>
-                            <img
-                                src={`${default_img }`}
-                                className='image-pneu'
-                            />
-                            <div className="overlay">
-                                <div className="text">Image Non Disponible</div>
-                            </div>
-                        </div>
-                        :
-                        <img
-                        src={`https://www.monsterstudio.org${pneu.image_url}`}
-                        className='image-pneu'
-                        />
-                    }
-                    {pneu.marque_img === null ? null :
-                        <div className='image-marque-container'>
-                            <img
-                                src={`https://www.monsterstudio.org${pneu.marque_img}`}
-                                className='image-marque'
-                            />
-                        </div>
-                    }
-                </div>
-                <div className='right-side'>
-                <p className='designation'>Pneu {pneu.marque}{pneu.collection} </p>
-                    <div className='info-container'>
-                            <p className='titre'>Dimension</p>
-                            <p className='caracteristique'>{pneu.largeur}/ {pneu.hauteur} R{pneu.diametre}  {pneu.charge} {pneu.vitesse}</p>
-                            {pneu.price > 0 ? 
-                                
-                                  <p style={{fontSize:'2.5em', fontWeight:'600', margin:'0', padding:'0', color:'#555'}}>{pneu.price} DA</p>
-                                
-                            :null}
-                            <p className='titre'>Gamme</p>
-                            <p className='caracteristique'>competition</p>
-                            <p className='titre'>Usage</p>
-                            <p className='caracteristique'>trackday (semi-slick)</p>
-                            <ul className='titre'>Point Fort</ul>
-                            <li className='point-forts'>Design optimise le grip et le drainage</li>
-                            <li className='point-forts'>Carcasse renforcée dans les flancs</li>
-                            <li className='point-forts'>Nouveau mélange de gomme</li>
-                            <button className='button-commande'>{pneu.price > 0 ? 'Commander' : 'Demmander devis'}</button>
-                        </div>
-                        
-                    </div>  
-                </div>
-                <div className='produits-similaires'>
-                    <hr/>
-                    <p className='titre-similar-products'>Produit similaires</p>
-                    <div className='recommandation-content'>
-                    <div className='card-rec'>
-                                    <img
-                                    src={vente_budjet_content[0].image}
-                                    alt="Logo Pneu service"
-                                    height='200'
-                                        width='150'
-                                    />
-                                    <div className='card-rec-right-col'>
-                                        <p className='name'>{vente_budjet_content[0].name}</p>
-                                        <p className='marque'>{vente_budjet_content[0].marque}</p>
-                                        <p className='prix'>{vente_budjet_content[0].prix}</p>
-                                        <button className='carousel-button' type='button'>Voir</button>
-                                    </div>
-                                </div>
-                                <div className='card-rec'>
-                                    <img
-                                    src={vente_budjet_content[1].image}
-                                    alt="Logo Pneu service"
-                                    height='200'
-                                        width='150'
-                                    />
-                                    <div className='card-rec-right-col'>
-                                        <p className='name'>{vente_budjet_content[1].name}</p>
-                                        <p className='marque'>{vente_budjet_content[1].marque}</p>
-                                        <p className='prix'>{vente_budjet_content[1].prix}</p>
-                                        <button className='carousel-button' type='button'>Voir</button>
-                                    </div>
-                                </div>
-                                <div className='card-rec'>
-                                    <img
-                                    src={vente_budjet_content[2].image}
-                                    alt="Logo Pneu service"
-                                    height='200'
-                                        width='150'
-                                    />
-                                     <div className='card-rec-right-col'>
-                                        <p className='name'>{vente_budjet_content[2].name}</p>
-                                        <p className='marque'>{vente_budjet_content[2].marque}</p>
-                                        <p className='prix'>{vente_budjet_content[2].prix}</p>
-                                        <button className='carousel-button' type='button'>Voir</button>
-                                     </div>
-                                </div>
-                    </div>
-                </div> 
-
-
-
-                display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-padding:3% 0;
-margin:0 10%;
-
-.product-container{
-    display:flex;
-    flex-direction:row;
-    justify-content:flex-start;
-    align-items:flex-start;
-    height:65vh;
-}
-
-.left-side{
-    padding-right:10%;
-    width:50%;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:flex-end;
-}
-
-.image-pneu{
-    width:50%;
-    height:100%;
-}
-
-.default-img{
-    display:flex;
-    justify-content: flex-end;
-    position: relative;
-    height:100%;
-    width: 100%;
-    color:#333;
-}
-
-.text {
-    color: #000;
-    font-size: 1.2em;
-    font-weight:600;
-}
-
-.overlay {
-    display:flex;
-    justify-content:flex-end;
-    align-items:center;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 100%;
-    width: 100%;
-    opacity: 0.7;
-    transition: .5s ease;
-    background-color: #fff;
-    padding-right:10%;
-}
-
-.image-marque-container{
-    width:100%;
-    display:flex;
-    justify-content: flex-end;
-}
-
-.image-marque{
-    width:50%;
-    height:20%;
-}
-
-.right-side{
-    width:50%;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:flex-start;
-}
-p{
-    padding:0;
-    margin:0
-}
-
-ul{
-    padding:0;
-    margin:0;
-}
-
-.info-container{
-    display:flex;
-    flex-direction:row;
-    width:90%;
-}
-
-.info{
-    width:50%;
-    height:100%
-}
-
-
-.designation{
-    font-size:1.3em;
-    font-weight:500;
-    color:#333;
-    height:10%;
-}
-
-.titre{
-    color:red;
-    font-weight:500;
-}
-
-.caracteristique{
-    font-size:1.2em;
-    font-weight:400;
-    color:#222;
-}
-
-.point-forts{
-   font-size:0.8em;
-}
-
-.button-commande{
-    border:none;
-    border-radius: 5px;
-    background:linear-gradient(90.84deg, #EF1A23 0.61%, #FB3C29 99.42%);
-    color:white;
-    font-size:1em;
-    font-weight:400;
-    width:auto;
-    height:auto;
-    margin:5% 0;
-    padding:5% 8%;
-}
-
-.price-container{
-    display:flex;
-    flex-direction:column;
-    height:100%;
-    width:50%;
-    padding-top:15%;
-    padding-left:8%;
-}
-
-.promotion{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    border-radius: 50%;
-    background:#A7BF73;
-    width:60px;
-    height:60px;
-    color:white;
-}
-.price{
-    display:flex;
-    flex-direction:row;
-}
-
-.carousel-button{
-    background : #EF1A23;
-    border:none;
-    color:white;
-    width:70%;
-    font-size:1.2em;
-    font-weight:bold;
-}
-
-.titre-similar-products{
-    font-size:2em;
-    color:red;
-
-}
-
-.recommandation-content{
-    display:flex;
-    flex-direction:row;
-    justify-content:center;
-    align-items:center;
-    width: 100%;
-    height:250px;
-    margin-bottom:10%;
-    margin-top:5%;
-}
-.card-rec{
-    display:flex;
-    flex-direction:row;
-    justify-content:flex-start;
-    align-items:center;
-    width:33%;
-    height:100%;
-    margin:1%;
-    background:#F5F5F5;
-    border-radius:10px;
-    box-shadow:5px 10px 20px 1px rgba(0,0,0, 0.253);
-}
-.card-rec-right-col{
-    display:flex;
-    flex-direction:column;
-    text-align:left;
-    padding-top:15%;
-    height:100%;
-}
-.name{
-   font-size:1em;
-   font-weight:bold;
-   color:#666;
-   margin:0;
-   padding:0;
-}
-.marque{
-    font-size:1em;
-   font-weight:bold;
-   color:#333;
-   margin:0;
-   padding:0;
-}
-.prix{
-    font-size:1.2em;
-   font-weight:bold;
-   color:#555;
-   margin:0;
-   padding:0;
-}
+ *  <div className='form-row-1'>
+        <input className='form-input-1' type="text"  name="lastname" placeholder="Votre Nom.."/>
+        <input className='form-input-1' type="text"  name="firstname" placeholder="Votre Prenom.."/>
+    </div>
+    <input className='form-input-2' type="email"  name="email" placeholder="Votre Email.."/>
+    <input className='form-input-2' type="tel"  name="telephone" placeholder="Votre Telephone.."/>
+    <div className='form-row-2'>
+        <button className='form-button' style={{color:'#fff', background:'#999'}}>Annuler</button>
+        <button className='form-button'  style={{color:'#fff', background:'#EF1A23'}}>Valider</button>
+    </div>
  */

@@ -217,7 +217,7 @@ function NavBar(props) {
                             <li className=' navbar-link'><Link  to='/'>Pneu Auto</Link></li>
                             <li className=' navbar-link'><Link  to='/pneu-moto'>Pneu Moto</Link></li>
                             <li className=' navbar-link'><Link  to='/pneu-poids-lourds'>Pneu Poids Lourds</Link></li>
-                            <li className=' navbar-link'><Link  to='/pneu-agro'>Pneu Agricole</Link></li>
+                            <li className=' navbar-link'><Link  to='/pneu-agricole'>Pneu Agricole</Link></li>
                         </div>
                     </ul>
 
