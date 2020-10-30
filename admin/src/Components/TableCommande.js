@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import MaterialTable from 'material-table';
+import axios from 'axios';
 
 import Search from "@material-ui/icons/Search"
  import ViewColumn from "@material-ui/icons/ViewColumn"
@@ -17,33 +18,57 @@ import Search from "@material-ui/icons/Search"
  import SaveIcon from '@material-ui/icons/Save';
 
 const TableCommande = () => {
-    const [state, setState] = React.useState({
-        columns: [
-          { title: 'Code', field: 'code' },
-          { title: 'Client', field: 'client' },
-          { title: 'Montant (Da)', field: 'montant', type: 'numeric' },
-          { title: 'Produits [code]', field: 'produits' },
-          { title: 'Qt', field: 'qt' },
-          { title: 'Etat', field: 'etat', lookup: { 34: 'livree', 63: 'en attente' }},
+    const [commandes, setCommandes] = useState([])
+    const [state, setState] = React.useState({});
+      
+      function handleDeleteCommande (id_commande, code_commande){
+        axios.post(`${process.env.REACT_APP_API_URL}/delete/commande`, {id_commande, code_commande})
+        .then(res => {
+          console.log(res.data.message)
+        })
+      }
 
-        ],
-        data: [
-          { code: 'cc6225', client: 'Baran', montant: 16000, produits: '195R14C, 195R14C, 195R14C', qt:4, etat:63 },
-          { code: 'cc6225', client: 'Baran', montant: 16000, produits: '195R14C, 195R14C, 195R14C', qt:4, etat:63},
-          { code: 'cc6225', client: 'Baran', montant: 16000, produits: '195R14C, 195R14C, 195R14C', qt:4, etat:63 },
-          { code: 'cc6225', client: 'Baran', montant: 16000, produits: '195R14C, 195R14C, 195R14C', qt:4, etat:63 },
-          { code: 'cc6225', client: 'Baran', montant: 16000, produits: '195R14C, 195R14C, 195R14C', qt:4, etat:34 },
-          { code: 'cc6225', client: 'Baran', montant: 16000, produits: '195R14C, 195R14C, 195R14C', qt:4, etat:34 },
-          {
-            code: 'cc6225',
-            client: 'Baran',
-            montant: 16000,
-            produits: '195R14C, 195R14C, 195R14C',
-            qt:4,
-            etat:34
-          },
-        ],
-      });
+      function handleUpdateCommande(nom_client, prenom_client, email, telephone, designation_pneu, prix_uht, quantite, wilaya, frais_livraison, centre_mentage, total, date_commande, id_commande, code_commande){
+        axios.post(`${process.env.REACT_APP_API_URL}/update/commande`, {nom_client, prenom_client, email, telephone, designation_pneu, prix_uht, quantite, wilaya, frais_livraison, centre_mentage, total, date_commande, id_commande, code_commande})
+        .then(res => {
+          console.log(res.data.message)
+        })
+      }
+      
+      useEffect(() => {
+        let comm = []
+        axios.post(`${process.env.REACT_APP_API_URL}/get/commande`)
+        .then(res => { 
+          comm = res.data
+          setCommandes(comm)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+      }, []) 
+      
+      useEffect(() => {
+          setState({
+            columns: [
+              { title: 'Code', field: 'code_commande'},
+              { title: 'Date', field: 'date_commande'},
+              { title: 'Nom client', field: 'nom_client'},
+              { title: 'Prenom client', field: 'prenom_client'},
+              { title: 'Email', field: 'email'},
+              { title: 'Telephone', field: 'telephone'},
+              { title: 'Pneu', field: 'designation_pneu'},
+              { title: 'Qt', field: 'quantite' },
+              { title: 'prix UHT', field: 'prix_uht', type: 'numeric'},
+              { title: 'Wilaya', field: 'wilaya' },
+              { title: 'Frais Livraison', field: 'frais_livraison', type: 'numeric'},
+              { title: 'Centre mentage', field: 'centre_mentage'},
+              { title: 'Total', field: 'total', type: 'numeric'}
+            ],
+            data:commandes,
+          }) 
+        
+      }, [commandes]) 
+
       return (
         <MaterialTable
           style={{width:'100%', height:'100%'}}
@@ -70,19 +95,14 @@ const TableCommande = () => {
           data={state.data}
           actions={[
             {
-              icon: () => <SaveAlt />,
-              tooltip: 'Telecharger',
-              onClick: (event, rowData) => alert("You saved " + rowData.name)
+              icon: () => <DeleteIcon />,
+              tooltip: 'supprimer',
+              onClick: (event, rowData) => console.log(rowData)
             },
             {
-                icon: () => <DeleteIcon />,
-                tooltip: 'Telecharger',
-                onClick: (event, rowData) => alert("You saved " + rowData.name)
-            },
-            {
-                icon: ()=><EditIcon/>,
-                tooltip: 'Telecharger',
-                onClick: (event, rowData) => alert("You saved " + rowData.name)
+              icon: ()=><EditIcon/>,
+              tooltip: 'Modifier',
+              onClick: (event, rowData) => console.log(rowData)
             }
 
           ]}
@@ -98,6 +118,7 @@ const TableCommande = () => {
               new Promise((resolve) => {
                 setTimeout(() => {
                   resolve();
+                  console.log(newData)
                   setState((prevState) => {
                     const data = [...prevState.data];
                     data.push(newData);
@@ -109,6 +130,7 @@ const TableCommande = () => {
               new Promise((resolve) => {
                 setTimeout(() => {
                   resolve();
+                  handleUpdateCommande(newData.nom_client, newData.prenom_client, newData.email, newData.telephone, newData.designation_pneu, newData.prix_uht, newData.quantite, newData.wilaya, newData.frais_livraison, newData.centre_mentage, newData.total, newData.date_commande, oldData.id_commande, oldData.code_commande)
                   if (oldData) {
                     setState((prevState) => {
                       const data = [...prevState.data];
@@ -120,8 +142,10 @@ const TableCommande = () => {
               }),
             onRowDelete: (oldData) =>
               new Promise((resolve) => {
+                console.log(oldData)
                 setTimeout(() => {
                   resolve();
+                  handleDeleteCommande(oldData.id_commande, oldData.code_commande)
                   setState((prevState) => {
                     const data = [...prevState.data];
                     data.splice(data.indexOf(oldData), 1);

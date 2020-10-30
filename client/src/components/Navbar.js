@@ -211,7 +211,7 @@ function NavBar(props) {
                     <ul className={clicked ? 'nav-menu active' : 'nav-menu'}>
                         <div className='left-side'>
                             <li className=' navbar-link'><Link  to='/promos'>Promo</Link></li>
-                            <li className=' navbar-link'><Link  >Montage</Link></li>
+                            <li className=' navbar-link'><Link  to='/centre-de-mentage'>Montage</Link></li>
                         </div>
                         <div className='right-side'>
                             <li className=' navbar-link'><Link  to='/'>Pneu Auto</Link></li>

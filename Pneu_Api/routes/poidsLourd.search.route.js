@@ -10,7 +10,11 @@ const {
     searchLargeurController,
     searchHauteurController,
     searchDiametreController,
-    searchPneusController
+    searchPneusController,
+    addPneuController,
+    updatePneuController,
+    deletePneuController,
+    getPneusController
 } = require('../controllers/poidsLourd.search.controller')
 
 //search par dimension 
@@ -23,5 +27,11 @@ router.post('/poidsLourd/search/dimension/marque', searchMarqueController)
 
 //resultat recherche 
 router.post('/poidsLourds/search/pneus', searchPneusController)
+
+//CRUD operations
+router.post('/add/pneus', addPneuController)
+router.post('/update/pneus', updatePneuController)
+router.post('/delete/pneus', deletePneuController)
+router.post('/get/pneus', getPneusController)
 
 module.exports = router

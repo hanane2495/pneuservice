@@ -46,12 +46,31 @@ const Styles = styled.div`
     }
     .promo-left-side{
          display:flex;
+         flex-direction:row;
          width: 40%;
          height: 100%;
          background:url(${dark});
          background-size:cover;
          align-items:center;
-         justify-content:flex-end;
+         justify-content:center;
+    }
+    .info-promo{
+       width:100%;
+       height: 100%;
+       display:flex;
+       flex-direction:column;
+       justify-content:center;
+       align-items:center;
+       color: white;
+    }
+    .inside-info-promo{
+       width:75%;
+       height: 60%;
+       display:flex;
+       flex-direction:column;
+       justify-content:center;
+       align-items:flex-start;
+       color: white;
     }
     .promo-right-side{
         display:flex;
@@ -203,7 +222,7 @@ function Home(props){
         largeur :'-- --', 
         hauteur :'-- --',
         diametre :'-- --',
-        charge :'-- --', 
+        charge :'Tous', 
         vitesse:'Tous',
         marque :'Tous'
     })
@@ -277,7 +296,13 @@ function Home(props){
     }, [])
     
     useEffect(() => {
-        axios.post(`${process.env.REACT_APP_API_URL}/search/dimension/vitesse`)
+        var largeur = formDataDimension.largeur
+        var hauteur = formDataDimension.hauteur
+        var diametre =  formDataDimension.diametre
+        var charge = formDataDimension.charge
+        axios.post(`${process.env.REACT_APP_API_URL}/search/dimension/vitesse`, {
+            largeur, hauteur, diametre, charge
+        })
         .then(res => {
             console.log('useEffect vitesse')
 
@@ -290,11 +315,17 @@ function Home(props){
         .catch(err => {
             console.log(err)
         })
-    }, [])
+    }, [formDataDimension.charge])
 
     useEffect(() => {
-        
-        axios.post(`${process.env.REACT_APP_API_URL}/search/dimension/marque`)
+        var largeur = formDataDimension.largeur
+        var hauteur = formDataDimension.hauteur
+        var diametre =  formDataDimension.diametre
+        var charge = formDataDimension.charge
+        var vitesse = formDataDimension.vitesse
+        axios.post(`${process.env.REACT_APP_API_URL}/search/dimension/marque`, {
+            largeur, hauteur, diametre, charge, vitesse
+        })
         .then(res => {
             console.log('useEffect vitesse')
             var mars = []
@@ -306,7 +337,7 @@ function Home(props){
         .catch(err => {
             console.log(err)
         })
-    }, [])
+    }, [formDataDimension.vitesse])
     
     //get hauteur depending on largeur
     useEffect(() => {
@@ -522,6 +553,22 @@ function Home(props){
         })
     }, [formDataVehicule.taille]);
 
+
+    /**
+     * <img
+            src={logo_transparent}
+            width='80'
+            height='170'
+            style={{margin:'0 0 50% 0', padding:'0'}}
+        />
+
+        <img
+            src={service}
+            width='20'
+            height='150'
+            style={{margin:'0 0 28% 0', padding:'0'}}
+        />
+     */
     return(
         <React.Fragment>
             <Styles>
@@ -530,20 +577,16 @@ function Home(props){
                 </div>
                 <div className='promo-item'>
                     <div className='promo-left-side'>
-                        <img
-                            src={logo_transparent}
-                            width='80'
-                            height='170'
-                            style={{margin:'0 0 50% 0', padding:'0'}}
-                        />
+                        <div className='info-promo'>
+                            <div className='inside-info-promo'>
+                                <p style={{fontSize:'2em', fontWeight:'900', letterSpacing:'5px', fontFamily:'Kulim Park, sans-serif'}}>PNEUSERVICE.DZ</p>
+                                <p style={{}}>Le Leader de pneu pas cher en Algerie vous propose les meilleures promo. profitez-en !</p>
+                                <button style={{background:'#EF1A23', color:'#fff', fontSize:'1em', padding:'10px 15px', borderRadius:'5px', border:'none'}}>J'en profite</button>
+                            </div>
+                        </div>
                     </div>
                     <div className='promo-right-side'>
-                        <img
-                            src={service}
-                            width='20'
-                            height='150'
-                            style={{margin:'0 0 28% 0', padding:'0'}}
-                        />
+                        
                     </div>
                 </div>
                 <div className='content-item'>
@@ -617,7 +660,7 @@ function Home(props){
                                                     value={formDataDimension.charge}
                                                     onChange={handleChangeDimension('charge')}
                                                     >
-                                                        <option>-- --</option>
+                                                        <option>Tous</option>
                                                         {charges.map((charge) => 
                                                             <option>{charge}</option>
                                                         )}
@@ -748,70 +791,5 @@ function Home(props){
     )
 }
 export default Home; 
-
-
-/**
- * 
- *  <img
-        src={`https://www.monsterstudio.org${image_url}`}
-        style={{margin:'0 0 28% 0', padding:'0'}}
-    />
- * <Product_Carousel/>
-
-
- {clicked ? <SearchResult resultat = {resultat} dimensions={formDataDimension} params={parametres} typeRecherche={typeRecherche}/> : 
- <div></div> }
- * 
-
-
-
- //submit data to backend
-    const handleSubmit = e => {
-    e.preventDefault()
-        setTypeRecherche('dimension')
-        var largeur = formDataDimension.largeur
-        var hauteur = formDataDimension.hauteur
-        var diametre = formDataDimension.diametre
-        var charge = formDataDimension.charge
-        var vitesse = formDataDimension.vitesse 
-        var marque = formDataDimension.marque
-        console.log(largeur+' '+hauteur+' '+diametre+' '+charge)
-    axios.post(`${process.env.REACT_APP_API_URL}/search/pneus`, {
-        largeur, hauteur, diametre, charge
-         }).then(res => {
-           setResultat(res.data)
-           console.log(res.data)
-         }).catch(err => {
-          console.log(err)
-         })   
-    }
-
-    const handleSubmitV = e => {
-        e.preventDefault()
-        setTypeRecherche('vehicule')
-            var largeur = parametres.largeur
-            var hauteur = parametres.hauteur
-            var diametre = parametres.diametre
-            var charge = parametres.charge
-            console.log(largeur+' '+hauteur+' '+diametre+' '+charge)
-        axios.post(`${process.env.REACT_APP_API_URL}/search/pneus`, {
-            largeur, hauteur, diametre, charge
-             }).then(res => {
-               setFormDataDimension({...formDataDimension,
-                largeur: parametres.largeur,
-                hauteur: parametres.hauteur,
-                diametre: parametres.diametre,
-                charge: parametres.charge,
-            })  
-               setResultat(res.data)
-               console.log(res.data)
-             }).catch(err => {
-              console.log(err)
-             })   
-        }
- */
-
-
-
 
 

@@ -24,6 +24,10 @@ const {
     searchVehiculeTailleController,
     searchGetParamsVehicule,
     searchPneusController,
+    addPneuController,
+    deletePneuController,
+    updatePneuController,
+    getPneusController 
 } = require('../controllers/auto.search.controller')
 
 //search par dimension 
@@ -46,5 +50,12 @@ router.post('/search/vehicule/params', searchGetParamsVehicule)
 
 //resultat recherche 
 router.post('/search/pneus', searchPneusController)
+
+//CRUD operations
+router.post('/add/pneus', addPneuController)
+router.post('/update/pneus', updatePneuController)
+router.post('/delete/pneus', deletePneuController)
+router.post('/get/pneus', getPneusController)
+
 
 module.exports = router

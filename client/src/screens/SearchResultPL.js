@@ -287,7 +287,7 @@ function SearchResult(){
                            :null}
                         </div>
                         <div className = 'card-info-4'>
-                            <Link to={`/details/pneu/poids-lourd/${res.pneu_id}/${res.designation_pneu}`} className='details' onClick={() => {handleDetails(JSON.stringify(res))}}>Details</Link>
+                            <Link to={`/details/pneu/poids-lourd/${res.pneu_id}/${res.designation}`} className='details' onClick={() => {handleDetails(JSON.stringify(res))}}>Details</Link>
                             {res.price > 0 ?  
                                 <Link className='acheter'>Commander</Link> :
                                 <Link className='acheter'>Demander Devis</Link>

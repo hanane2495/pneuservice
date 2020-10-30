@@ -271,3 +271,127 @@ exports.searchPneusController = (req, res) => {
 }
 
 
+//get pneu auto
+exports.getPneusController = (req, res) => {
+    const errors = validationResult(req)
+    
+        if(!errors.isEmpty()){
+            const firstError = errors.array().map(error => error.msg)[0]
+            return res.status(422).json({
+                error: firstError
+            })
+        }else{
+            pool.connect((err, db, done) => {
+                if(err){
+                    return res.send(err);
+                }else{
+                    db.query('select * from pneu_agricole order by designation_ag ASC',(err, results) => {
+                        
+                        done()
+                        if(err){
+                            console.log(err)
+                        }else{
+                            var parms = results.rows;
+                            return res.json(parms)
+                        }
+                    })
+                }
+            })  
+        }
+}
+
+//add pneu auto
+exports.addPneuController = (req, res) => {
+    const errors = validationResult(req)
+    
+        if(!errors.isEmpty()){
+            const firstError = errors.array().map(error => error.msg)[0]
+            return res.status(422).json({
+                error: firstError
+            })
+        }else{
+            pool.connect((err, db, done) => {
+                if(err){
+                    return res.send(err);
+                }else{
+                    db.query('insert into pneu_agricole(categorie, type, position, marque, collection, largeur, hauteur, diametre, charge, vitesse, plis, designation_ag, carburant, adherence, bruit, marge, promo) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)',
+                      [req.body.categorie, req.body.type, req.body.position, req.body.marque, req.body.collection, req.body.largeur, req.body.hauteur, req.body.diametre, req.body.charge, req.body.vitesse, req.body.plis, req.body.designation_ag, req.body.carburant, req.body.adherence, req.body.bruit, req.body.marge, req.body.promo] ,
+                      (err, results) => {
+                        done()
+                        if(err){
+                            console.log(err)
+                        }else{
+                            return res.json({
+                                message : `Pneu Ajouté avec succes`
+                            })
+                        }
+                    })
+                }
+            })  
+        }
+}
+
+//delete pneu auto
+exports.deletePneuController = (req, res) =>{
+    const errors = validationResult(req)
+
+    if(!errors.isEmpty()){
+        const firstError = errors.array().map(error => error.msg)[0]
+        return res.status(422).json({
+            error: firstError
+        })
+    }else{
+        PneuDimension.destroy({
+            where: {
+                id_pneu_ag: {
+                    [Op.and] : req.body.listPneu
+                }
+            }
+        }).then(() => {
+            return res.json({
+                message : `suppression terminée`
+            })
+        }).catch(err => {
+            console.log(err)
+         }) 
+    }
+}
+
+//update commande 
+exports.updatePneuController = (req, res) =>{
+    const errors = validationResult(req)
+
+    if(!errors.isEmpty()){
+        const firstError = errors.array().map(error => error.msg)[0]
+        return res.status(422).json({
+            error: firstError
+        })
+    }else{
+        pool.connect((err, db, done) => {
+            if(err){
+                return res.send(err);
+            }else{
+               db.query(`update pneu_agricole set categorie = $1, type = $2, position = $3, marque = $4, collection = $5, largeur = $6, hauteur = $7, diametre = $8, charge = $9, vitesse = $10, plis = $11, designation_ag = $12, carburant = $13, adherence = $14, bruit = $15, marge = $16, promo = $17 where id_pneu_ag = $18`,
+               [req.body.categorie, req.body.type, req.body.position, req.body.marque, req.body.collection, req.body.largeur, req.body.hauteur, req.body.diametre, req.body.charge, req.body.vitesse, req.body.plis, req.body.designation_ag, req.body.carburant, req.body.adherence, req.body.bruit, req.body.marge, req.body.promo, req.body.id_pneu_ag] ,
+               (err, results) => {
+                   done()
+                   if(err){
+                    console.log(err)
+                }else{
+                    return res.json({
+                        message : `Le pneu avec l'ID : ${ req.body.id_pneu_ag} a été modifiée`
+                    })
+                }
+               })
+            }
+        })
+    }
+    
+}
+
+
+
+
+
+
+

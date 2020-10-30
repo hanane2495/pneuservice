@@ -12,7 +12,11 @@ const {
     searchDiametreController,
     searchChargeController,
     searchVitesseController,
-    searchPneusController
+    searchPneusController,
+    addPneuController,
+    updatePneuController,
+    deletePneuController,
+    getPneusController
 } = require('../controllers/moto.search.controller')
 
 //search par dimension 
@@ -27,5 +31,11 @@ router.post('/moto/search/dimension/marque', searchMarqueController)
 
 //resultat recherche 
 router.post('/moto/search/pneus', searchPneusController)
+
+//CRUD operations
+router.post('/add/pneus', addPneuController)
+router.post('/update/pneus', updatePneuController)
+router.post('/delete/pneus', deletePneuController)
+router.post('/get/pneus', getPneusController)
 
 module.exports = router

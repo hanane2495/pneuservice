@@ -4,6 +4,7 @@ import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 //components 
 import PneuAuto from './screens/PneuAuto'
 import Promo from './screens/Promos'
+import CentreMentage from './screens/CentreMentage'
 import PneuAgro from './screens/PneuAgro'
 import PneuMoto from './screens/PneuMoto'
 import PneuPL from './screens/PneuPoidsLourd'
@@ -26,6 +27,7 @@ function App() {
           <Route path='/pneu-moto' component={props => <PneuMoto />}/>
           <Route path='/pneu-poids-lourds' component={props => <PneuPL />}/>
           <Route path='/pneu-agricole' component={props => <PneuAgro />}/>
+          <Route path='/centre-de-mentage' component={props => <CentreMentage />}/>
           <Route path='/promos' component={props => <Promo />}/>
 
           <Route path='/details/pneu/auto/:id_pneu/:designation' component={props => <DetailsPneu/>}/>

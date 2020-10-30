@@ -6,7 +6,6 @@ import {Form, Modal} from 'react-bootstrap'
 
 //components
 import Navbar from '../components/Navbar'
-import CommandeStepper from '../components/CommandeStepper'
 
 //icons
 import {FaCloudShowersHeavy, FaGasPump, FaVolumeUp} from 'react-icons/fa'
@@ -304,13 +303,19 @@ const FormStyle = styled.form`
         border-radius:5px;
         border:none;
     }
-
 `;
+
+
+
+
 function Detail(){
     let match = useRouteMatch();
 
     //show/hide Modal
     const [show, setShow] = useState(false);
+
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
 
     const [pneu, setPneu] = useState([])
     const [wilayas, setWilayas] = useState([])
@@ -375,7 +380,6 @@ function Detail(){
                     })
                 }
             })
-            console.log(commande)
         }else{
             setCommande({...commande, [text]: e.target.value})
             console.log(commande)
@@ -510,7 +514,6 @@ function Detail(){
                             <div>
                                 <p style={{fontSize:'2.5em', fontWeight:'700', margin:'0', padding:'0', color:'#333'}}>{pneu.price} DA</p>   
                                 <p style={{fontSize:'0.8em', fontWeight:'500', margin:'0', padding:'0', color:'#999'}}>prix unitaire HT</p>
-                       
                             </div>       
                              :null}
                         <div className='quantite'>
@@ -537,6 +540,8 @@ function Detail(){
                                 </Form.Group>
                             </Form>
                             </div>
+                            {pneu.price <= 0 ? null :  
+                            <div>
                             <div className='quantite'>
                                 <p style={{margin:'2%', color:'red'}}>Wilaya</p>
                                 <Form>
@@ -578,6 +583,8 @@ function Detail(){
                                 </div>
                             :   null 
                             }
+                            </div>
+                            }
                             {commande.wilaya === '' ? null : 
                             <div>
                                 <p style={{margin:'50% 0 0.5% 2%', color:'red', textDecoration:'none'}}>Total : </p>
@@ -600,7 +607,44 @@ function Detail(){
                                 <p className='text-commande'>Veuillez remplir les informations suivante pour valider votre commande !</p>
                                 <hr/>
                                 <FormStyle>
-                                    <CommandeStepper/>
+                                    <div className='form-row-1'>
+                                        <input 
+                                           className='form-input-1' 
+                                           type="text"  
+                                           name="lastname" 
+                                           placeholder="Votre Nom*.."
+                                           value={commande.prenom_client}
+                                           onChange={handleChangeCommande('prenom_client')}
+                                        />
+                                        <input 
+                                           className='form-input-1' 
+                                           type="text"  
+                                           name="firstname" 
+                                           placeholder="Votre Prenom.."
+                                           value={commande.nom_client}
+                                           onChange={handleChangeCommande('nom_client')}
+                                        />
+                                    </div>
+                                    <input 
+                                        className='form-input-2' 
+                                        type="email"  
+                                        name="email" 
+                                        placeholder="Votre Email*.."
+                                        value={commande.email}
+                                        onChange={handleChangeCommande('email')}
+                                    />
+                                    <input 
+                                        className='form-input-2' 
+                                        type="tel"  
+                                        name="telephone" 
+                                        placeholder="Votre Telephone*.."
+                                        value={commande.telephone}
+                                        onChange={handleChangeCommande('telephone')}
+                                    />
+                                    <div className='form-row-2'>
+                                        <button className='form-button' style={{color:'#fff', background:'#999'}} onClick={handleClose}>Annuler</button>
+                                        <button className='form-button'  style={{color:'#fff', background:'#EF1A23'}} onClick={handleClose}>Valider</button>
+                                    </div>
                                 </FormStyle>
                             </Modal.Body>
                         </Modal>
@@ -615,6 +659,8 @@ function Detail(){
 export default Detail; 
 
 /**
+ * <CommandeStepper pneu={pneu} wilayas={wilayas} total={total} commande={commande}/>
+ * 
  *  <div className='form-row-1'>
         <input className='form-input-1' type="text"  name="lastname" placeholder="Votre Nom.."/>
         <input className='form-input-1' type="text"  name="firstname" placeholder="Votre Prenom.."/>

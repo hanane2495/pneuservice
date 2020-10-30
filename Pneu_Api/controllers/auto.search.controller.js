@@ -3,6 +3,7 @@ const _ = require('lodash')
 const fetch = require('node-fetch')
 const {validationResult} = require('express-validator')
 const sequelize = require('sequelize')
+const {Op} = require('sequelize')
 const db = require('../config/db')
 const pg = require('pg')
 const path = require("path");
@@ -17,6 +18,18 @@ let pool = new pg.Pool({
     max : 10,
     idleTimeoutMillis : 30000
 });
+
+function filter_search_inputs(res, db, done, requete, params){
+    db.query(`${requete}`,params ,(err, results) => {
+        done()
+        if(err){
+            console.log(err)
+        }else{
+            var search_item = results.rows;
+            return res.json(search_item)
+        }
+    })
+}
 
 //bring our models
 const PneuDimension = require('../models/pneu.model')
@@ -67,7 +80,6 @@ exports.searchDimensionHauteurController = (req, res) =>{
                        console.log(err)
                     }else{
                         var hauteurs = results.rows;
-                        console.log()
                         return res.json(hauteurs)
                     }
                 })
@@ -145,18 +157,29 @@ exports.searchDimensionVitesseController = (req, res) =>{
             if(err){
                 return res.send(err);
             }else{
-                db.query('select distinct vitesse from pneu_dimension order by vitesse ASC', (err, results) => {
-                    
-                    done()
-                    if(err){
-                        console.log(err)
-                    }else{
-                        var vitesses = results.rows;
-                        console.log('vitesse has been sent')
-                        return res.json(vitesses)
-                    }
-                    
-                })
+                if(req.body.charge === 'Tous'){
+                    db.query('select distinct vitesse from pneu_dimension where largeur = $1 and hauteur = $2 and diametre = $3 order by vitesse ASC',[req.body.largeur, req.body.hauteur, req.body.diametre] ,(err, results) => {
+                        done()
+                        if(err){
+                            console.log(err)
+                        }else{
+                            var charges = results.rows;
+                            console.log(results.rows)
+                            return res.json(charges)
+                        }
+                    })
+                }else{
+                    db.query('select distinct vitesse from pneu_dimension where largeur = $1 and hauteur = $2 and diametre = $3 and charge = $4 order by vitesse ASC',[req.body.largeur, req.body.hauteur, req.body.diametre, req.body.charge] ,(err, results) => {
+                        done()
+                        if(err){
+                            console.log(err)
+                        }else{
+                            var charges = results.rows;
+                            console.log(results.rows)
+                            return res.json(charges)
+                        }
+                    })
+                }
             }
         })   
     }
@@ -165,6 +188,18 @@ exports.searchDimensionVitesseController = (req, res) =>{
 exports.searchDimensionMarqueController = (req, res) =>{
 //select distinct marque from pneu_dimension where largeur = :largeur and hauteur = :hauteur and diametre = :diametre and charge = :charge vitesse = :vitesse order by charge DESC
     const errors = validationResult(req)
+
+    //les requetes de filtre
+    const requete1 = 'select distinct marque from pneu_dimension where largeur = $1 and hauteur = $2 and diametre = $3 and charge = $4 and vitesse = $5 order by marque ASC'
+    const requete2 = 'select distinct marque from pneu_dimension where largeur = $1 and hauteur = $2 and diametre = $3 and charge = $4 order by marque ASC'
+    const requete3 = 'select distinct marque from pneu_dimension where largeur = $1 and hauteur = $2 and diametre = $3 and vitesse = $4 order by marque ASC'
+    const requete4 = 'select distinct marque from pneu_dimension where largeur = $1 and hauteur = $2 and diametre = $3 order by marque ASC'
+
+    //les parametre de la requete
+    const params1 = [req.body.largeur, req.body.hauteur, req.body.diametre, req.body.charge, req.body.vitesse]
+    const params2 = [req.body.largeur, req.body.hauteur, req.body.diametre, req.body.charge]
+    const params3 = [req.body.largeur, req.body.hauteur, req.body.diametre, req.body.vitesse]
+    const params4 = [req.body.largeur, req.body.hauteur, req.body.diametre]
 
     if(!errors.isEmpty()){
         const firstError = errors.array().map(error => error.msg)[0]
@@ -176,20 +211,18 @@ exports.searchDimensionMarqueController = (req, res) =>{
             if(err){
                 return res.send(err);
             }else{
-                db.query('select distinct marque from pneu_dimension order by marque ASC', (err, results) => {
-                    
-                    done()
-                    if(err){
-                        console.log(err)
-                    }else{
-                        var marques = results.rows;
-                    console.log('marques has been sent')
-                    return res.json(marques)
-                    }
-                    
-                })
+                if(req.body.charge !== 'Tous' && req.body.vitesse !== 'Tous' ){
+                    filter_search_inputs(res, db, done, requete1, params1)
+                }else if(req.body.charge !== 'Tous' && req.body.vitesse === 'Tous' ){
+                    filter_search_inputs(res, db, done, requete2, params2)
+                }else if(req.body.charge === 'Tous' && req.body.vitesse !== 'Tous'){
+                    filter_search_inputs(res, db, done, requete3, params3)
+                }else{
+                    filter_search_inputs(res, db, done, requete4, params4)
+                }
+                
             }
-        })  
+        }) 
     }
 }
 
@@ -455,46 +488,203 @@ exports.searchPneusController = (req, res) => {
         })
     }else{
         pool.connect((err, db, done) => {
-            //vitesse !== tous marque !== tous
+            //charge !== tous vitesse !== tous marque !== tous 
             const requetegenerale1='select pneu_id, designation_pneu, collection, type, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(prix,0) as price, image_url from pneu_dimension, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_dimension.pneu_id and mapping_pneu_four.id_pneu_fournisseur = stock.id_supplier and largeur=$1 and hauteur=$2 and diametre=$3 and charge=$4 and vitesse=$5 and marque=$6 order by pneu_id'
             const requete1='select pneu_id, designation_pneu, type, collection, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, marge, image_url from pneu_dimension where largeur=$1 and hauteur=$2 and diametre=$3 and charge=$4 and vitesse=$5 and marque=$6'
             const parametres1 = [req.body.largeur, req.body.hauteur, req.body.diametre, req.body.charge, req.body.vitesse, req.body.marque]
-            //vitesse !== tous et marque == tous 
-            const requetegenerale2='select pneu_id, designation_pneu, collection, type, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(prix,0) as price, image_url from pneu_dimension, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_dimension.pneu_id and mapping_pneu_four.id_pneu_fournisseur = stock.id_supplier and largeur=$1 and hauteur=$2 and diametre=$3 and charge=$4 and vitesse=$5 order by pneu_id'
-            const requete2='select pneu_id, designation_pneu, type, collection, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, marge, image_url from pneu_dimension where largeur=$1 and hauteur=$2 and diametre=$3 and charge=$4 and vitesse=$5'
-            const parametres2 = [req.body.largeur, req.body.hauteur, req.body.diametre, req.body.charge, req.body.vitesse]
-            //vitesse == tous et marque !== tous
+            //charge == tous vitesse !== tous marque !== tous  
+            const requetegenerale2='select pneu_id, designation_pneu, collection, type, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(prix,0) as price, image_url from pneu_dimension, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_dimension.pneu_id and mapping_pneu_four.id_pneu_fournisseur = stock.id_supplier and largeur=$1 and hauteur=$2 and diametre=$3 and vitesse=$4 and marque=$5 order by pneu_id'
+            const requete2='select pneu_id, designation_pneu, type, collection, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, marge, image_url from pneu_dimension where largeur=$1 and hauteur=$2 and diametre=$3 and vitesse=$4 and marque=$5'
+            const parametres2 = [req.body.largeur, req.body.hauteur, req.body.diametre, req.body.vitesse, req.body.marque]
+            //charge !== tous vitesse == tous marque !== tous 
             const requetegenerale3='select pneu_id, designation_pneu, collection, type, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(prix,0) as price, image_url from pneu_dimension, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_dimension.pneu_id and mapping_pneu_four.id_pneu_fournisseur = stock.id_supplier and largeur=$1 and hauteur=$2 and diametre=$3 and charge=$4 marque=$5 order by pneu_id'
             const requete3='select pneu_id, designation_pneu, type, collection, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, marge, image_url from pneu_dimension where largeur=$1 and hauteur=$2 and diametre=$3 and charge=$4 and marque=$5'
             const parametres3 = [req.body.largeur, req.body.hauteur, req.body.diametre, req.body.charge, req.body.marque]
-            //vitesse == tous et marque == tous
-            const requetegenerale4='select pneu_id, designation_pneu, collection, type, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(prix,0) as price, image_url from pneu_dimension, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_dimension.pneu_id and mapping_pneu_four.id_pneu_fournisseur = stock.id_supplier and largeur=$1 and hauteur=$2 and diametre=$3 and charge=$4 order by pneu_id'
-            const requete4='select pneu_id, designation_pneu, type, collection, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, marge, image_url from pneu_dimension where largeur=$1 and hauteur=$2 and diametre=$3 and charge=$4'
-            const parametres4 = [req.body.largeur, req.body.hauteur, req.body.diametre, req.body.charge]
+            //charge !== tous vitesse !== tous marque == tous 
+            const requetegenerale4='select pneu_id, designation_pneu, collection, type, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(prix,0) as price, image_url from pneu_dimension, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_dimension.pneu_id and mapping_pneu_four.id_pneu_fournisseur = stock.id_supplier and largeur=$1 and hauteur=$2 and diametre=$3 and charge=$4 and vitesse=$5 order by pneu_id'
+            const requete4='select pneu_id, designation_pneu, type, collection, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, marge, image_url from pneu_dimension where largeur=$1 and hauteur=$2 and diametre=$3 and charge=$4 and vitesse=$5'
+            const parametres4 = [req.body.largeur, req.body.hauteur, req.body.diametre, req.body.charge, req.body.vitesse]
+            //charge !== tous vitesse == tous marque == tous 
+            const requetegenerale5='select pneu_id, designation_pneu, collection, type, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(prix,0) as price, image_url from pneu_dimension, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_dimension.pneu_id and mapping_pneu_four.id_pneu_fournisseur = stock.id_supplier and largeur=$1 and hauteur=$2 and diametre=$3 and charge=$4 order by pneu_id'
+            const requete5='select pneu_id, designation_pneu, type, collection, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, marge, image_url from pneu_dimension where largeur=$1 and hauteur=$2 and diametre=$3 and charge=$4'
+            const parametres5 = [req.body.largeur, req.body.hauteur, req.body.diametre, req.body.charge]
+            //charge == tous vitesse !== tous marque == tous 
+            const requetegenerale6='select pneu_id, designation_pneu, collection, type, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(prix,0) as price, image_url from pneu_dimension, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_dimension.pneu_id and mapping_pneu_four.id_pneu_fournisseur = stock.id_supplier and largeur=$1 and hauteur=$2 and diametre=$3 and vitesse=$4 order by pneu_id'
+            const requete6='select pneu_id, designation_pneu, type, collection, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, marge, image_url from pneu_dimension where largeur=$1 and hauteur=$2 and diametre=$3 and vitesse=$4'
+            const parametres6 = [req.body.largeur, req.body.hauteur, req.body.diametre, req.body.vitesse]
+            //charge == tous vitesse == tous marque !== tous 
+            const requetegenerale7='select pneu_id, designation_pneu, collection, type, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(prix,0) as price, image_url from pneu_dimension, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_dimension.pneu_id and mapping_pneu_four.id_pneu_fournisseur = stock.id_supplier and largeur=$1 and hauteur=$2 and diametre=$3 and marque=$4 order by pneu_id'
+            const requete7='select pneu_id, designation_pneu, type, collection, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, marge, image_url from pneu_dimension where largeur=$1 and hauteur=$2 and diametre=$3 and marque=$4'
+            const parametres7 = [req.body.largeur, req.body.hauteur, req.body.diametre, req.body.marque]
+            //charge == tous vitesse == tous marque == tous 
+            const requetegenerale8='select pneu_id, designation_pneu, collection, type, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(prix,0) as price, image_url from pneu_dimension, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_dimension.pneu_id and mapping_pneu_four.id_pneu_fournisseur = stock.id_supplier and largeur=$1 and hauteur=$2 and diametre=$3 order by pneu_id'
+            const requete8='select pneu_id, designation_pneu, type, collection, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, marge, image_url from pneu_dimension where largeur=$1 and hauteur=$2 and diametre=$3'
+            const parametres8 = [req.body.largeur, req.body.hauteur, req.body.diametre]
             if(err){
                 return res.send(err);
             }else{
-                if(req.body.vitesse !== 'Tous' && req.body.marque !== 'Tous'){
+                if(req.body.charge !== 'Tous' && req.body.vitesse !== 'Tous' && req.body.marque !== 'Tous'){
                     console.log(req.body)
                     // vitesse = une vitesse & marque = une marque
                     searchFilter(db, requetegenerale1,requete1, parametres1, done)
                    
-                }else if(req.body.vitesse !== 'Tous' && req.body.marque === 'Tous'){
+                }else if(req.body.charge === 'Tous' && req.body.vitesse !== 'Tous' && req.body.marque !== 'Tous'){
                     console.log(req.body)
                     //vitesse = une vitesse & marque = Tous
                     searchFilter(db, requetegenerale2,requete2, parametres2, done)
                    
-                }else if(req.body.vitesse === 'Tous' && req.body.marque !== 'Tous'){
+                }else if(req.body.charge !== 'Tous' && req.body.vitesse === 'Tous' && req.body.marque !== 'Tous'){
                     console.log(req.body)
                     //vitesse = Tous & marque = une marque
                     searchFilter(db, requetegenerale3,requete3, parametres3, done)
 
+                }else if(req.body.charge !== 'Tous' && req.body.vitesse !== 'Tous' && req.body.marque === 'Tous'){
+                    console.log(req.body)
+                    //vitesse = Tous & marque = une marque
+                    searchFilter(db, requetegenerale4,requete4, parametres4, done)
+
+                }else if(req.body.charge !== 'Tous' && req.body.vitesse === 'Tous' && req.body.marque === 'Tous'){
+                    console.log(req.body)
+                    //vitesse = Tous & marque = une marque
+                    searchFilter(db, requetegenerale5,requete5, parametres5, done)
+
+                }else if(req.body.charge === 'Tous' && req.body.vitesse !== 'Tous' && req.body.marque === 'Tous'){
+                    console.log(req.body)
+                    //vitesse = Tous & marque = une marque
+                    searchFilter(db, requetegenerale6,requete6, parametres6, done)
+
+                }else if(req.body.charge === 'Tous' && req.body.vitesse === 'Tous' && req.body.marque !== 'Tous'){
+                    console.log(req.body)
+                    //vitesse = Tous & marque = une marque
+                    searchFilter(db, requetegenerale7,requete7, parametres7, done)
+
                 }else{ //vitesse = Tous & marque = Tous
                     console.log(req.body)
-                    searchFilter(db, requetegenerale4,requete4, parametres4, done)
+                    searchFilter(db, requetegenerale8, requete8, parametres8, done)
                 }
             }
         })   
     }
 
 }
+
+//get pneu auto
+exports.getPneusController = (req, res) => {
+    const errors = validationResult(req)
+    
+        if(!errors.isEmpty()){
+            const firstError = errors.array().map(error => error.msg)[0]
+            return res.status(422).json({
+                error: firstError
+            })
+        }else{
+            pool.connect((err, db, done) => {
+                if(err){
+                    return res.send(err);
+                }else{
+                    db.query('select * from pneu_dimension order by designation ASC',(err, results) => {
+                        
+                        done()
+                        if(err){
+                            console.log(err)
+                        }else{
+                            var parms = results.rows;
+                            return res.json(parms)
+                        }
+                    })
+                }
+            })  
+        }
+}
+
+//add pneu auto
+exports.addPneuController = (req, res) => {
+    const errors = validationResult(req)
+    
+        if(!errors.isEmpty()){
+            const firstError = errors.array().map(error => error.msg)[0]
+            return res.status(422).json({
+                error: firstError
+            })
+        }else{
+            pool.connect((err, db, done) => {
+                if(err){
+                    return res.send(err);
+                }else{
+                    db.query('insert into pneu_dimension(designation_pneu, marque, collection, type, largeur, hauteur, diametre, charge, vitesse, marge, statut, carburant, adherence, bruit, promo ) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)',
+                      [rep.body.designation_pneu, req.body.marque, req.body.collection, req.body.type, req.body.largeur, req.body.hauteur, req.body.diametre, req.body.charge, req.body.vitesse, req.body.marge, req.body.statut, req.body.carburant, req.body.adherence, req.body.bruit, req.body.promo] ,
+                      (err, results) => {
+                        done()
+                        if(err){
+                            console.log(err)
+                        }else{
+                            return res.json({
+                                message : `Pneu Ajouté avec succes`
+                            })
+                        }
+                    })
+                }
+            })  
+        }
+}
+
+//delete pneu auto
+exports.deletePneuController = (req, res) =>{
+    const errors = validationResult(req)
+
+    if(!errors.isEmpty()){
+        const firstError = errors.array().map(error => error.msg)[0]
+        return res.status(422).json({
+            error: firstError
+        })
+    }else{
+        PneuDimension.destroy({
+            where: {
+                pneu_id : {
+                    [Op.and] : req.body.listPneu
+                }
+            }
+        }).then(() => {
+            return res.json({
+                message : `suppression terminée`
+            })
+        }).catch(err => {
+            console.log(err)
+         }) 
+    }
+}
+
+//update commande 
+exports.updatePneuController = (req, res) =>{
+    const errors = validationResult(req)
+
+    if(!errors.isEmpty()){
+        const firstError = errors.array().map(error => error.msg)[0]
+        return res.status(422).json({
+            error: firstError
+        })
+    }else{
+        pool.connect((err, db, done) => {
+            if(err){
+                return res.send(err);
+            }else{
+               db.query(`update pneu_dimension set designation_pneu = $1, marque = $2, collection = $3, type = $4, largeur = $5, hauteur =$6, diametre = $7, charge =$8, vitesse =$9, marge = $10, statut = $11, carburant = $12, adherence = $13, bruit = $14, promo = $15 where pneu_id = $16`,
+               [rep.body.designation_pneu, req.body.marque, req.body.collection, req.body.type, req.body.largeur, req.body.hauteur, req.body.diametre, req.body.charge, req.body.vitesse, req.body.marge, req.body.statut, req.body.carburant, req.body.adherence, req.body.bruit, req.body.promo, req.body.pneu_id] ,
+               (err, results) => {
+                   done()
+                   if(err){
+                    console.log(err)
+                }else{
+                    return res.json({
+                        message : `Le pneu avec l'ID : ${req.body.pneu_id} a été modifiée`
+                    })
+                }
+               })
+            }
+        })
+    }
+}
+
+
+
+

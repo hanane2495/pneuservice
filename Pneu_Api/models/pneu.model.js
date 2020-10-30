@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 const db = require('../config/db');
 
 
-//User schema 
+//pneu auto schema 
 module.exports = db.define(
     'pneu_dimension',
     {

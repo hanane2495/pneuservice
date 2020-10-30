@@ -1,8 +1,13 @@
-import React from "react";
-import { Link } from 'react-router-dom';
-import {Navbar, Nav, Form, FormControl, Button, Container} from 'react-bootstrap';
+import React, {useEffect} from "react";
+import { Link, useHistory} from 'react-router-dom';
+import {Navbar, Nav, Container} from 'react-bootstrap';
 import Avatar from '@material-ui/core/Avatar';
 import styled from 'styled-components';
+
+import {toast, ToastContainer} from 'react-toastify'
+
+
+import {signout, isAuth} from '../helpers/auth'
 
 //components
 import ModalProfile from './ModalProfile'
@@ -61,9 +66,11 @@ const Styles = styled.div`
     }
 `;
 
-const MyNavbar = () => {
+const MyNavbar = (props) => {
+  let history = useHistory();
   return (
     <React.Fragment>
+      <ToastContainer/>
       <Styles>
         <Navbar className='navbar-layout'>
           <Container>
@@ -85,17 +92,31 @@ const MyNavbar = () => {
               </Nav.Link>
               <Nav.Link >
                 <Link to ='/Profile'>
-                    <p style={{color:'#555', marginLeft:'0.2rem', marginTop:'10%'}}>Djelloul Boubekri</p>
+                   <p style={{color:'#555', marginLeft:'0.2rem', marginTop:'10%'}}>{isAuth().nom+" "+isAuth().prenom}</p>
                 </Link>
               </Nav.Link>
               <Nav.Link >
-                <Link to='/'>
-                    <FiPower style={{color:'#db3d44', width:'1.5rem',  height:'1.5rem', marginLeft:'0.2rem', marginTop:'30%'}}/>
-                </Link>
+                <FiPower 
+                onClick={() => {
+                  signout(() => {
+                      props.setUser(null)
+                      toast.error('Signout Successfully');
+                      history.push('/');
+                  });
+              }}
+                style={{color:'#db3d44', width:'1.5rem',  height:'1.5rem', marginLeft:'0.2rem', marginTop:'30%'}}/>
               </Nav.Link>
               <Nav.Link >
                 <Link to='/'>
-                  <p style={{color:'#555', marginLeft:'0.2rem', marginTop:'10%'}}>Déconnexion</p>
+                  <p style={{color:'#555', marginLeft:'0.2rem', marginTop:'10%'}}
+                   onClick={() => {
+                    signout(() => {
+                        props.setUser(null)
+                        toast.error('Signout Successfully');
+                        history.push('/');
+                    });
+                }}
+                  >Déconnexion</p>
                 </Link>
               </Nav.Link>
            </Nav>

@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
-import {HashRouter as Router, Route, Switch} from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route
+} from "react-router-dom";
 import SideNav, {NavItem, NavIcon, NavText } from '@trendmicro/react-sidenav';
 import styled from 'styled-components';
 
@@ -12,19 +16,25 @@ import { GiCarWheel, GiAutoRepair } from "react-icons/gi";
 
 
 //components
-import Login from './Login';
-import Acceuil from './Acceuil'
-import Commande from './Commande'
-import Fournisseurs from './Fournisseurs'
-import CentreMontage from './CentreMontage'
-import Pneus from './Pneus'
-import Publicite from './Publicite'
-import Product from './Product'
-import Stock from './Stock'
+import Login from './screens/Login';
+import Acceuil from './screens/Acceuil'
+import Commande from './screens/Commande'
+import Fournisseurs from './screens/Fournisseurs'
+import CentreMontage from './screens/CentreMontage'
+import Pneus from './screens/Pneus'
+import Publicite from './screens/Publicite'
+import Product from './screens/Product'
+import Stock from './screens/Stock'
 import Navbar from './Components/Navbar'
 import Aside from './Components/Aside'
-import Profile from './Profile'
-import AddUser from './AddUser'
+import Profile from './screens/Profile'
+import AddUser from './screens/AddUser'
+import ForgetPassword from './screens/ForgetPassword'
+import ResetPassword from './screens/ResetPassword'
+import NotFound from './screens/NotFound'
+
+//Private Routes
+import PrivateRoute from './routes/PrivateRoute';
 
 //styled components 
 const Styles =styled.div`
@@ -78,10 +88,18 @@ const Main = styled.main`
 function App() {
   const [toggled, setToggled] = useState(false);
 
+  const[user, setUser] = useState(null)
+
+  useEffect(() => {
+    setUser(JSON.parse(localStorage.getItem('user')))
+  },[]);
+
   return (
-    <Router basename='/'>
+    <Router>
         <Switch>
-          <Route exact path='/' component={Login}/>
+          <Route exact path='/' component={props => <Login setUser={setUser}/>}/>
+          <Route  path='/mot-de-passe/oublie' component={props => <ForgetPassword />}/>
+          <Route  path='/users/password/reset/:token' component={props => <ResetPassword {...props}/>}/>
           <Route render={({ location, history }) => (
            <React.Fragment >
              <Styles >
@@ -164,21 +182,21 @@ function App() {
                       </SideNav>
                    </AsideLeft>
                    <Nav>
-                      <Navbar/>
+                      <Navbar user={user} setUser={setUser}/>
                    </Nav>
                    <Main>
                       <main style={{height:'100%'}}>
-                          <Route  path='/Acceuil' component={props => <Acceuil closed={toggled}/>}/>
-                          <Route  path='/Commandes' component={props =><Commande />}/>
-                          <Route  path='/Fournisseurs' component={props =><Fournisseurs />}/>
-                          <Route  path='/Centres_de_montages' component={props =><CentreMontage />}/>
-                          <Route  path='/Pneus' component={props =><Pneus />}/>
-                          <Route  path='/Publicite' component={props =><Publicite />}/>
-                          <Route  path='/Publicite' component={props =><Publicite />}/>
-                          <Route  path='/Product' component={props =><Product />}/>
-                          <Route  path='/Stock' component={props =><Stock />}/>
-                          <Route  path='/Profile' component={props =><Profile />}/>
-                          <Route  path='/Ajouter_Utilisateur' component={props =><AddUser />}/>
+                          <PrivateRoute  path='/Acceuil'  component={props => <Acceuil closed={toggled}/>}/>
+                          <PrivateRoute  path='/Commandes'  component={props =><Commande />}/>
+                          <PrivateRoute  path='/Fournisseurs'  component={props =><Fournisseurs />}/>
+                          <PrivateRoute  path='/Centres_de_montages'  component={props =><CentreMontage />}/>
+                          <PrivateRoute  path='/Pneus'  component={props =><Pneus />}/>
+                          <PrivateRoute  path='/Publicite'  component={props =><Publicite />}/>
+                          <PrivateRoute  path='/Publicite'  component={props =><Publicite />}/>
+                          <PrivateRoute  path='/Product'  component={props =><Product />}/>
+                          <PrivateRoute  path='/Stock'  component={props =><Stock />}/>
+                          <PrivateRoute  path='/Profile'  component={props =><Profile />}/>
+                          <PrivateRoute  path='/Ajouter_Utilisateur'  component={props =><AddUser />}/>
                       </main> 
                    </Main>
               </div>     
@@ -195,6 +213,9 @@ export default App;
 
 
 /**
+ *<Route component={props => <NotFound/>}/>
+
+ * 
  * .sidenav---collapsed---LQDEv {
     transition: min-width 0.9s;
 }
