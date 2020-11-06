@@ -582,7 +582,7 @@ exports.getPneusController = (req, res) => {
                 if(err){
                     return res.send(err);
                 }else{
-                    db.query('select * from pneu_dimension order by designation ASC',(err, results) => {
+                    db.query('select * from pneu_dimension order by designation_pneu ASC',(err, results) => {
                         
                         done()
                         if(err){
@@ -612,7 +612,7 @@ exports.addPneuController = (req, res) => {
                     return res.send(err);
                 }else{
                     db.query('insert into pneu_dimension(designation_pneu, marque, collection, type, largeur, hauteur, diametre, charge, vitesse, marge, statut, carburant, adherence, bruit, promo ) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)',
-                      [rep.body.designation_pneu, req.body.marque, req.body.collection, req.body.type, req.body.largeur, req.body.hauteur, req.body.diametre, req.body.charge, req.body.vitesse, req.body.marge, req.body.statut, req.body.carburant, req.body.adherence, req.body.bruit, req.body.promo] ,
+                      [req.body.designation_pneu, req.body.marque, req.body.collection, req.body.type, req.body.largeur, req.body.hauteur, req.body.diametre, req.body.charge, req.body.vitesse, req.body.marge, req.body.statut, req.body.carburant, req.body.adherence, req.body.bruit, req.body.promo] ,
                       (err, results) => {
                         done()
                         if(err){
@@ -641,7 +641,7 @@ exports.deletePneuController = (req, res) =>{
         PneuDimension.destroy({
             where: {
                 pneu_id : {
-                    [Op.and] : req.body.listPneu
+                    [Op.in] : req.body.listPneu
                 }
             }
         }).then(() => {
@@ -669,7 +669,7 @@ exports.updatePneuController = (req, res) =>{
                 return res.send(err);
             }else{
                db.query(`update pneu_dimension set designation_pneu = $1, marque = $2, collection = $3, type = $4, largeur = $5, hauteur =$6, diametre = $7, charge =$8, vitesse =$9, marge = $10, statut = $11, carburant = $12, adherence = $13, bruit = $14, promo = $15 where pneu_id = $16`,
-               [rep.body.designation_pneu, req.body.marque, req.body.collection, req.body.type, req.body.largeur, req.body.hauteur, req.body.diametre, req.body.charge, req.body.vitesse, req.body.marge, req.body.statut, req.body.carburant, req.body.adherence, req.body.bruit, req.body.promo, req.body.pneu_id] ,
+               [req.body.designation_pneu, req.body.marque, req.body.collection, req.body.type, req.body.largeur, req.body.hauteur, req.body.diametre, req.body.charge, req.body.vitesse, req.body.marge, req.body.statut, req.body.carburant, req.body.adherence, req.body.bruit, req.body.promo, req.body.pneu_id] ,
                (err, results) => {
                    done()
                    if(err){

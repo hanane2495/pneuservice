@@ -3,6 +3,7 @@ const _ = require('lodash')
 const fetch = require('node-fetch')
 const {validationResult} = require('express-validator')
 const sequelize = require('sequelize')
+const {Op} = require('sequelize')
 const db = require('../config/db')
 const pg = require('pg')
 const path = require("path");
@@ -19,7 +20,7 @@ let pool = new pg.Pool({
 });
 
 //bring our models
-const PneuDimension = require('../models/pneu.model')
+const PneuAgricole = require('../models/pneu.agricole.model')
 
 //bring our helpers
 const {errorHandler } = require('../helpers/dbErrorHandlling')
@@ -314,6 +315,7 @@ exports.addPneuController = (req, res) => {
                 if(err){
                     return res.send(err);
                 }else{
+                    console.log(req.body)
                     db.query('insert into pneu_agricole(categorie, type, position, marque, collection, largeur, hauteur, diametre, charge, vitesse, plis, designation_ag, carburant, adherence, bruit, marge, promo) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)',
                       [req.body.categorie, req.body.type, req.body.position, req.body.marque, req.body.collection, req.body.largeur, req.body.hauteur, req.body.diametre, req.body.charge, req.body.vitesse, req.body.plis, req.body.designation_ag, req.body.carburant, req.body.adherence, req.body.bruit, req.body.marge, req.body.promo] ,
                       (err, results) => {
@@ -341,12 +343,11 @@ exports.deletePneuController = (req, res) =>{
             error: firstError
         })
     }else{
-        PneuDimension.destroy({
-            where: {
-                id_pneu_ag: {
-                    [Op.and] : req.body.listPneu
-                }
-            }
+        console.log(req.body.listPneu);
+        PneuAgricole.destroy({
+            where: { id_pneu_ag: {
+                [Op.in] : req.body.listPneu
+            }}
         }).then(() => {
             return res.json({
                 message : `suppression terminée`
@@ -379,7 +380,7 @@ exports.updatePneuController = (req, res) =>{
                     console.log(err)
                 }else{
                     return res.json({
-                        message : `Le pneu avec l'ID : ${ req.body.id_pneu_ag} a été modifiée`
+                        message : `Le pneu avec l'ID : ${req.body.id_pneu_ag} a été modifiée`
                     })
                 }
                })

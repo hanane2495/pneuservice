@@ -16,6 +16,19 @@ import Search from "@material-ui/icons/Search"
  import ClearIcon from '@material-ui/icons/Clear';
  import SaveIcon from '@material-ui/icons/Save';
 
+ import styled from 'styled-components';
+
+
+
+ const Styles = styled.div`
+ .MuiTableCell-root {
+    padding: 0 10px !important;
+    overflow:hidden; 
+    white-space:nowrap; 
+    text-overflow: ellipsis;
+  }
+ `
+
 const TableStock = () => {
     const [state, setState] = React.useState({
         columns: [
@@ -36,6 +49,7 @@ const TableStock = () => {
         ],
       });
       return (
+        <Styles>
         <MaterialTable
           style={{width:'100%', height:'100%'}}
           title=""
@@ -78,8 +92,10 @@ const TableStock = () => {
 
           ]}
           options={{
-            actionsColumnIndex: -1,
-            selection: true
+            selection: true,
+            rowStyle: {
+              height: '10px',
+            }
           }}
           editable={{
             onRowAdd: (newData) =>
@@ -119,6 +135,7 @@ const TableStock = () => {
               }),
           }}
         />
+        </Styles>
     );
 
 }      

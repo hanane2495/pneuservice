@@ -3,6 +3,7 @@ const _ = require('lodash')
 const fetch = require('node-fetch')
 const {validationResult} = require('express-validator')
 const sequelize = require('sequelize')
+const {Op} = require('sequelize')
 const db = require('../config/db')
 const pg = require('pg')
 const path = require("path");
@@ -32,7 +33,7 @@ function filter_search_inputs(res, db, done, requete, params){
 }
 
 //bring our models
-const PneuDimension = require('../models/pneu.model')
+const PneuMoto = require('../models/pneu.moto.model')
 
 //bring our helpers
 const { errorHandler } = require('../helpers/dbErrorHandlling')
@@ -640,10 +641,10 @@ exports.deletePneuController = (req, res) =>{
             error: firstError
         })
     }else{
-        PneuDimension.destroy({
+        PneuMoto.destroy({
             where: {
                 id_pneu_m : {
-                    [Op.and] : req.body.listPneu
+                    [Op.in] : req.body.listPneu
                 }
             }
         }).then(() => {

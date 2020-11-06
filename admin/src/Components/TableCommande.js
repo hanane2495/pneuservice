@@ -17,6 +17,19 @@ import Search from "@material-ui/icons/Search"
  import ClearIcon from '@material-ui/icons/Clear';
  import SaveIcon from '@material-ui/icons/Save';
 
+ import styled from 'styled-components';
+
+
+
+ const Styles = styled.div`
+ .MuiTableCell-root {
+    padding: 2px !important;
+    overflow:hidden; 
+    white-space:nowrap; 
+    text-overflow: ellipsis;
+  }
+ `
+
 const TableCommande = () => {
     const [commandes, setCommandes] = useState([])
     const [state, setState] = React.useState({});
@@ -70,6 +83,7 @@ const TableCommande = () => {
       }, [commandes]) 
 
       return (
+        <Styles>
         <MaterialTable
           style={{width:'100%', height:'100%'}}
           title="Liste des commandes"
@@ -107,8 +121,10 @@ const TableCommande = () => {
 
           ]}
           options={{
-            actionsColumnIndex: -1,
-            selection: true
+            selection: true,
+            rowStyle: {
+              height: '10px',
+            }
           }}
           components={{
             Container: props => <div style={{background: 'none'}}>{props.children}</div>
@@ -155,6 +171,7 @@ const TableCommande = () => {
               }),
           }}
         />
+        </Styles>
     );
 
 }      

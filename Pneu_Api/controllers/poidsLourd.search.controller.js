@@ -3,6 +3,7 @@ const _ = require('lodash')
 const fetch = require('node-fetch')
 const {validationResult} = require('express-validator')
 const sequelize = require('sequelize')
+const {Op} = require('sequelize')
 const db = require('../config/db')
 const pg = require('pg')
 const path = require("path");
@@ -19,7 +20,7 @@ let pool = new pg.Pool({
 });
 
 //bring our models
-const PneuDimension = require('../models/pneu.model')
+const PneuPoidsLourd = require('../models/pneu.pl.model')
 
 //bring our helpers
 const {errorHandler } = require('../helpers/dbErrorHandlling')
@@ -400,10 +401,10 @@ exports.deletePneuController = (req, res) =>{
             error: firstError
         })
     }else{
-        PneuDimension.destroy({
+        PneuPoidsLourd.destroy({
             where: {
                 id_pneu_pl : {
-                    [Op.and] : req.body.listPneu
+                    [Op.in] : req.body.listPneu
                 }
             }
         }).then(() => {

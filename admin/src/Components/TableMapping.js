@@ -16,6 +16,19 @@ import Search from "@material-ui/icons/Search"
  import ClearIcon from '@material-ui/icons/Clear';
  import SaveIcon from '@material-ui/icons/Save';
 
+ import styled from 'styled-components';
+
+
+
+ const Styles = styled.div`
+ .MuiTableCell-root {
+    padding: 0 10px !important;
+    overflow:hidden; 
+    white-space:nowrap; 
+    text-overflow: ellipsis;
+  }
+ `
+
 const TableMapping = () => {
     const [state, setState] = React.useState({
         columns: [
@@ -35,9 +48,10 @@ const TableMapping = () => {
         ],
       });
       return (
+        <Styles>
         <MaterialTable
           style={{width:'100%', height:'100%'}}
-          title=""
+          title="Les Produits non Mappées"
           icons={{
             Check: () => <Check />,
             Export: () => <SaveAlt />,
@@ -77,8 +91,10 @@ const TableMapping = () => {
 
           ]}
           options={{
-            actionsColumnIndex: -1,
-            selection: true
+            selection: true,
+            rowStyle: {
+              height: '10px',
+            }
           }}
           editable={{
             onRowAdd: (newData) =>
@@ -118,6 +134,7 @@ const TableMapping = () => {
               }),
           }}
         />
+        </Styles>
     );
 
 }      

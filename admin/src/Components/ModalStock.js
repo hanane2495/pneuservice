@@ -19,6 +19,8 @@ import Search from "@material-ui/icons/Search"
  import SaveIcon from '@material-ui/icons/Save';
 
 
+ import Stepper from '../Components/AddStockStepper' 
+
 export default function MyVerticallyCenteredModalStock(props) {
   const [state, setState] = React.useState({
     columns: [
@@ -43,11 +45,40 @@ export default function MyVerticallyCenteredModalStock(props) {
       >
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title-vcenter">
-            Stock {props.fournisseur}
+            Ajouter un Nouveau stock 
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-        <div>
+          <Stepper/>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={props.onHide}>Fermer</Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  }
+  
+
+  /**
+   * import MaterialTable from 'material-table';
+
+import Search from "@material-ui/icons/Search"
+ import ViewColumn from "@material-ui/icons/ViewColumn"
+ import SaveAlt from "@material-ui/icons/SaveAlt"
+ import ChevronLeft from "@material-ui/icons/ChevronLeft"
+ import ChevronRight from "@material-ui/icons/ChevronRight"
+ import FirstPage from "@material-ui/icons/FirstPage"
+ import LastPage from "@material-ui/icons/LastPage"
+ import Check from "@material-ui/icons/Check"
+ import FilterList from "@material-ui/icons/FilterList"
+ import DeleteIcon from '@material-ui/icons/Delete';
+ import AddBoxIcon from '@material-ui/icons/AddBox';
+ import EditIcon from '@material-ui/icons/Edit';
+ import ClearIcon from '@material-ui/icons/Clear';
+ import SaveIcon from '@material-ui/icons/Save';
+
+
+   * <div>
         <h6>Ajouter un nouveau stock </h6>
         <Form style={{marginBottom:'5%'}}>
           <Form.File 
@@ -57,8 +88,7 @@ export default function MyVerticallyCenteredModalStock(props) {
           />
         </Form>
       </div>
-
-      <MaterialTable
+   * <MaterialTable
           style={{width:'100%', height:'100%'}}
           title="Produits non mappees"
           icons={{
@@ -141,11 +171,5 @@ export default function MyVerticallyCenteredModalStock(props) {
               }),
           }}
         />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={props.onHide}>Fermer</Button>
-        </Modal.Footer>
-      </Modal>
-    );
-  }
-  
+   * 
+   */

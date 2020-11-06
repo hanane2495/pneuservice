@@ -27,9 +27,9 @@ router.post('/agricole/search/dimension/marque', searchMarqueController)
 router.post('/agricole/search/pneus', searchPneusController)
 
 //CRUD operations
-router.post('/add/pneus', addPneuController)
-router.post('/update/pneus', updatePneuController)
-router.post('/delete/pneus', deletePneuController)
-router.post('/get/pneus', getPneusController)
+router.post('/add/pneus/agricole', addPneuController)
+router.post('/update/pneus/agricole', updatePneuController)
+router.post('/delete/pneus/agricole', deletePneuController)
+router.post('/get/pneus/agricole', getPneusController)
 
 module.exports = router

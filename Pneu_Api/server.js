@@ -41,17 +41,21 @@ const pneuRouter = require('./routes/pneu.route')
 const poidsLourdsRouter = require('./routes/poidsLourd.search.route')
 const motoRouter = require('./routes/moto.search.route')
 const agricoleRouter = require('./routes/agricole.search.route')
-const commande = require('./routes/commande.route')
+const commandeRouter = require('./routes/commande.route')
 const authRouter = require('./routes/admin.auth.route')
+const fournisseurRouter = require('./routes/fournisseur.route') 
+const stockRouter =  require('./routes/stock.route')
 
 //Use routes
 app.use('/api/', authRouter)
 app.use('/api/', autosearchRouter)
 app.use('/api/', pneuRouter)
 app.use('/api/', poidsLourdsRouter)
-app.use('/api', motoRouter)
+app.use('/api/', motoRouter)
 app.use('/api/', agricoleRouter)
-app.use('/api/', commande)
+app.use('/api/', commandeRouter )
+app.use('/api/', fournisseurRouter)
+app.use('/api/', stockRouter)
 
 
 const PORT = process.env.PORT

@@ -16,6 +16,19 @@ import Search from "@material-ui/icons/Search"
  import ClearIcon from '@material-ui/icons/Clear';
  import SaveIcon from '@material-ui/icons/Save';
 
+ import styled from 'styled-components';
+
+
+
+ const Styles = styled.div`
+ .MuiTableCell-root {
+    padding: 2px !important;
+    overflow:hidden; 
+    white-space:nowrap; 
+    text-overflow: ellipsis;
+  }
+ `
+
 const TableCMontage = () => {
     const [state, setState] = React.useState({
         columns: [
@@ -44,6 +57,7 @@ const TableCMontage = () => {
         ],
       });
       return (
+        <Styles>
         <MaterialTable
           style={{width:'100%', height:'100%'}}
           title="Liste des Centres de montage"
@@ -87,7 +101,11 @@ const TableCMontage = () => {
           ]}
           options={{
             actionsColumnIndex: -1,
-            selection: true
+            selection: true,
+            fixedColumns: {
+              left: 0,
+              right: 1
+            }
           }}
           components={{
             Container: props => <div style={{background: 'none'}}>{props.children}</div>
@@ -130,6 +148,7 @@ const TableCMontage = () => {
               }),
           }}
         />
+      </Styles>
     );
 
 }      

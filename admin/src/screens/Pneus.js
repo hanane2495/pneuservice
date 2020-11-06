@@ -5,6 +5,9 @@ import styled from 'styled-components'
 
 //component 
 import TablePneu from '../Components/TablePneuAuto'
+import TablePneuAgricole from '../Components/TablePneuAgricole'
+import TablePneuMoto from '../Components/TablePneuMoto'
+import TablePneuPL from '../Components/TablePneuPL'
 
 
 const Styles = styled.div`
@@ -46,22 +49,35 @@ const Pneu = () => {
             <Styles>
             <div className='pneu-tab-container'>
               <Tabs defaultActiveKey="pneu-auto" id="uncontrolled-tab-example" >
-                    <Tab eventKey="pneu-auto" title="Pneu Aoto" >
+                    <Tab eventKey="pneu-auto" title="Pneu Auto" >
                         <div className='tab-container'>
                             <TablePneu />
                         </div>
                     </Tab>
-                    <Tab eventKey="pneu-moto" title="Pneu Moto" disabled>
-                        <h1>I'm pneu Moto</h1>
+                    <Tab eventKey="pneu-moto" title="Pneu Moto" >
+                    <div className='tab-container'>
+                            <TablePneuMoto/>
+                        </div>
                     </Tab>
-                    <Tab eventKey="pneu-pds-lrd" title="Pneu Poids lourds" disabled>
-                        <h1>i'm disabled</h1>
+                    <Tab eventKey="pneu-pds-lrd" title="Pneu Poids lourds" >
+                        <div className='tab-container'>
+                            < TablePneuPL />
+                        </div>
                     </Tab>
-                    <Tab eventKey="collections" title="Collections" disabled>
-                        <h1>i'm collections</h1>
+                    <Tab eventKey="pneu-ag" title="Pneu Agricole" >
+                        <div className='tab-container'>
+                            <TablePneuAgricole />
+                        </div>
                     </Tab>
-                    <Tab eventKey="marques" title="Marques" disabled>
-                        <h1>i'm marques</h1>
+                    <Tab eventKey="collections" title="Collections" >
+                        <div className='tab-container'>
+                            <TablePneu />
+                        </div>
+                    </Tab>
+                    <Tab eventKey="marques" title="Marques" >
+                        <div className='tab-container'>
+                            <TablePneu />
+                        </div>
                     </Tab>
               </Tabs>   
             </div>
