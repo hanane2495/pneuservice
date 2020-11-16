@@ -35,6 +35,7 @@ import Search from "@material-ui/icons/Search"
 const TablePneu = () => {
 
     const [pneus, setPneus] = useState([])
+    const [promo, setPromo] = useState({})
     const [state, setState] = React.useState({});
       
       function handleDeletePneu (listPneu){
@@ -68,6 +69,22 @@ const TablePneu = () => {
         .catch(err => {
           console.log(err)
         })
+
+        //get promos
+      var pro = {}
+      axios.post(`${process.env.REACT_APP_API_URL}/get/promo`)
+      .then(res => { 
+        res.data.map((prom) => {
+          Object.defineProperty(pro, `${prom.valeur_promo}`, {value : `${prom.nom_promo} (-${prom.valeur_promo}%)`,
+          writable : true,
+          enumerable : true,
+          configurable : true})
+        })
+        setPromo(pro)
+      })
+      .catch(err => {
+        console.log(err)
+      })
       }, []) 
       
       useEffect(() => {
@@ -89,7 +106,7 @@ const TablePneu = () => {
               { title: 'adherence', field: 'adherence'},
               { title: 'bruit', field: 'bruit'},
               { title: 'marge', field: 'marge'},
-              { title: 'promo', field: 'promo'}
+              { title: 'promo', field: 'promo', lookup: promo}
             ],
             data:pneus,
           }) 

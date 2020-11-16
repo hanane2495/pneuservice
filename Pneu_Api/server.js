@@ -45,6 +45,10 @@ const commandeRouter = require('./routes/commande.route')
 const authRouter = require('./routes/admin.auth.route')
 const fournisseurRouter = require('./routes/fournisseur.route') 
 const stockRouter =  require('./routes/stock.route')
+const centreMontageRouter = require('./routes/centreMontage.route')
+const mappingRouter = require('./routes/mapping.route')
+const promoRouter = require('./routes/promo.route')
+const pubRouter = require('./routes/page.route')
 
 //Use routes
 app.use('/api/', authRouter)
@@ -56,6 +60,10 @@ app.use('/api/', agricoleRouter)
 app.use('/api/', commandeRouter )
 app.use('/api/', fournisseurRouter)
 app.use('/api/', stockRouter)
+app.use('/api/', centreMontageRouter)
+app.use('/api/', mappingRouter)
+app.use('/api/', promoRouter)
+app.use('/api/', pubRouter)
 
 
 const PORT = process.env.PORT

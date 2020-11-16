@@ -13,6 +13,7 @@ import './App.css';
 //icon
 import { FaHome, FaShoppingCart, FaTruck, FaBullhorn } from 'react-icons/fa';
 import { GiCarWheel, GiAutoRepair } from "react-icons/gi";
+import {MdLocalOffer} from 'react-icons/md'
 
 
 //components
@@ -22,7 +23,7 @@ import Commande from './screens/Commande'
 import Fournisseurs from './screens/Fournisseurs'
 import CentreMontage from './screens/CentreMontage'
 import Pneus from './screens/Pneus'
-import Publicite from './screens/Publicite'
+import Promo from './screens/Promo'
 import Product from './screens/Product'
 import Stock from './screens/Stock'
 import Navbar from './Components/Navbar'
@@ -32,6 +33,7 @@ import AddUser from './screens/AddUser'
 import ForgetPassword from './screens/ForgetPassword'
 import ResetPassword from './screens/ResetPassword'
 import NotFound from './screens/NotFound'
+import Publicite from './screens/Publicite'
 
 //Private Routes
 import PrivateRoute from './routes/PrivateRoute';
@@ -169,12 +171,20 @@ function App() {
                                     Pneus
                                   </NavText>
                               </NavItem>
+                              <NavItem eventKey="Promo">
+                                  <NavIcon>
+                                      <MdLocalOffer style={{ fontSize: '1.75em' }} />
+                                  </NavIcon>
+                                  <NavText>
+                                    Promo
+                                  </NavText>
+                              </NavItem>
                               <NavItem eventKey="Publicite">
                                   <NavIcon>
                                       <FaBullhorn style={{ fontSize: '1.75em' }} />
                                   </NavIcon>
                                   <NavText>
-                                    Publicité
+                                    Pub
                                   </NavText>
                               </NavItem>
                               
@@ -191,12 +201,13 @@ function App() {
                           <PrivateRoute  path='/Fournisseurs'  component={props =><Fournisseurs />}/>
                           <PrivateRoute  path='/Centres_de_montages'  component={props =><CentreMontage />}/>
                           <PrivateRoute  path='/Pneus'  component={props =><Pneus />}/>
-                          <PrivateRoute  path='/Publicite'  component={props =><Publicite />}/>
-                          <PrivateRoute  path='/Publicite'  component={props =><Publicite />}/>
+                          <PrivateRoute  path='/Promo'  component={props =><Promo />}/>
                           <PrivateRoute  path='/Product'  component={props =><Product />}/>
                           <PrivateRoute  path='/Stock'  component={props =><Stock />}/>
                           <PrivateRoute  path='/Profile'  component={props =><Profile />}/>
                           <PrivateRoute  path='/Ajouter_Utilisateur'  component={props =><AddUser />}/>
+                          <PrivateRoute  path='/Publicite'  component={props =><Publicite />}/>
+
                       </main> 
                    </Main>
               </div>     

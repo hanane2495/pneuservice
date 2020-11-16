@@ -278,15 +278,20 @@ function SearchResult(){
                         <div className = 'card-info-3'>
                             {res.price > 0 ? 
                             <div>
-                            <div className='price'>
-                                <div className='promotion'>
-                                    <p style={{paddingTop:'15px'}}>50%</p>
+                                {res.promo !== null ?
+                                    <div>
+                                        <div className='price'>
+                                            <div className='promotion'>
+                                                <p style={{paddingTop:'15px'}}>-{res.promo}%</p>
+                                            </div>
+                                            <p style={{fontSize:'0.8em', fontWeight:'600', margin:'0', padding:'0', textDecoration:'line-through'}}>{res.price} DA</p>
+                                        </div>
+                                        <p style={{fontSize:'1.5em', fontWeight:'600', margin:'0', padding:'0'}}>{(res.price)* (parseInt(res.promo))/100} DA</p>
+                                    </div>
+                                :   <p style={{fontSize:'1.5em', fontWeight:'600', margin:'0', padding:'0'}}>{res.price} DA</p>
+                                }
                                 </div>
-                                <p style={{fontSize:'0.8em', fontWeight:'600', margin:'0', padding:'0', textDecoration:'line-through'}}>{res.price} DA</p>
-                            </div>
-                            <p style={{fontSize:'1.5em', fontWeight:'600', margin:'0', padding:'0'}}>{res.price} DA</p>
-                            </div>
-                           :null}
+                                 :null}
                         </div>
                         <div className = 'card-info-4'>
                             <Link to={`/details/pneu/moto/${res.pneu_id}/${res.designation}`} className='details' onClick={() => {handleDetails(JSON.stringify(res))}}>Details</Link>

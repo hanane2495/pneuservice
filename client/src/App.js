@@ -3,8 +3,8 @@ import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
 
 //components 
 import PneuAuto from './screens/PneuAuto'
-import Promo from './screens/Promos'
-import CentreMentage from './screens/CentreMentage'
+import Promo from './screens/Promo'
+import CentreMentage from './screens/CentreMontage'
 import PneuAgro from './screens/PneuAgro'
 import PneuMoto from './screens/PneuMoto'
 import PneuPL from './screens/PneuPoidsLourd'

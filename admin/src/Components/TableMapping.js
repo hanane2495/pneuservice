@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import MaterialTable from 'material-table';
+import axios from 'axios'
 
 import Search from "@material-ui/icons/Search"
  import ViewColumn from "@material-ui/icons/ViewColumn"
@@ -29,24 +30,36 @@ import Search from "@material-ui/icons/Search"
   }
  `
 
-const TableMapping = () => {
-    const [state, setState] = React.useState({
-        columns: [
-          { title: 'ID Pneu', field: 'id_pneu' },  
-          { title: 'ID Supplier', field: 'id_supplier' },
-          { title: 'Designation', field: 'designation' },
+const TableMapping = (props) => {
+  const [produit, setFournisseurs] = useState([])
+  const [state, setState] = React.useState({});
+  
 
-        ],
-        data: [
-          { id_pneu: '712', id_supplier: '10.516SW', designation: 'Michelin Latitude Sport 3 275/45 R19 108Y' },
-          { id_pneu: '714', id_supplier: '100020M', designation: 'Hifly HF201 185/55 R15 82V'},
-          { id_pneu: '332', id_supplier: 'cc6225', designation: 'Cooper CS2 175/70 R14 84T' },
-          { id_pneu: '715', id_supplier: '10.516SW', designation: 'Michelin Latitude Sport 3 275/45 R19 108Y' },
-          { id_pneu: '614', id_supplier: 'cc6225', designation: 'Michelin XL 12.5R20 139G' },
-          { id_pneu: '514', id_supplier: '100020M', designation: 'Hifly HF201 185/55 R15 82V' },
-          
-        ],
-      });
+//________________________________mapper produits non mappee___________________________________
+
+  function handleAddMapping(id_pneu_service, suppliers_code, designation, id_fournisseur){
+    axios.post(`${process.env.REACT_APP_API_URL}/add/mapping`, {id_pneu_service, suppliers_code, designation, id_fournisseur})
+    .then(res => {
+      console.log(res.data.message)
+    })
+  }
+
+  useEffect(() => {
+    setState({
+      columns: [
+        { title: 'ID pneu fournisseur', field: 'suppliers_code'},  
+        { title: 'ID fournisseur', field: 'id_fournisseur'},
+        { title: 'Designation', field: 'designation'},
+        { title: 'ID pneu service', field: 'id_pneu_service'},
+
+      ],
+      data:props.produits_non_mappee,
+    }) 
+  
+}, [props.produits_non_mappee]) 
+
+//_________________________________________fin mapping_________________________________________
+    
       return (
         <Styles>
         <MaterialTable
@@ -79,11 +92,6 @@ const TableMapping = () => {
               onClick: (event, rowData) => alert("You saved " + rowData.name)
             },
             {
-                icon: () => <DeleteIcon />,
-                tooltip: 'Telecharger',
-                onClick: (event, rowData) => alert("You saved " + rowData.name)
-            },
-            {
                 icon: ()=><EditIcon/>,
                 tooltip: 'Telecharger',
                 onClick: (event, rowData) => alert("You saved " + rowData.name)
@@ -113,6 +121,7 @@ const TableMapping = () => {
                 setTimeout(() => {
                   resolve();
                   if (oldData) {
+                    handleAddMapping(newData.id_pneu_service, oldData.suppliers_code, newData.designation, oldData.id_fournisseur)
                     setState((prevState) => {
                       const data = [...prevState.data];
                       data[data.indexOf(oldData)] = newData;

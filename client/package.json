@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.0",
+    "@material-ui/lab": "^4.0.0-alpha.56",
     "axios": "^0.19.2",
     "bootstrap": "^4.5.0",
     "cra-template": "1.0.3",
@@ -17,6 +18,7 @@
     "react-icons": "^3.10.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^3.4.3",
+    "react-search-autocomplete": "^1.0.6",
     "react-spring": "^8.0.27",
     "react-visibility-sensor": "^5.1.1",
     "reactstrap": "^8.6.0",

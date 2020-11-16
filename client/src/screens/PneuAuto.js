@@ -1,16 +1,11 @@
 import React, {useState, useEffect} from 'react';
-import { Link, useRouteMatch, Route } from 'react-router-dom';
-import {Nav, Tab, Row, Col, Form, TabContainer} from 'react-bootstrap'
+import { Link, useRouteMatch } from 'react-router-dom';
+import {Nav, Tab, Row, Col, Form} from 'react-bootstrap'
 import styled from 'styled-components';
-import { motion} from "framer-motion";
 import axios from 'axios'
 
 //images
 import redCar from '../assets/red-car.jpg'
-import service from '../assets/service.png'
-import logo_transparent from '../assets/logo-transparent.png'
-
-//images
 import dark from '../assets/dark1.jpg'
 
 //icons
@@ -21,7 +16,7 @@ import {AiFillCaretRight} from 'react-icons/ai'
 import Recommandation from '../components/Recommandation'
 import Coordonnee from '../components/Coordonnee'
 import Navbar from '../components/Navbar'
-import SearchResult from '../components/SearchResult';
+import Carousel from '../components/Carousel'
 
 
 const Styles = styled.div`
@@ -579,9 +574,9 @@ function Home(props){
                     <div className='promo-left-side'>
                         <div className='info-promo'>
                             <div className='inside-info-promo'>
-                                <p style={{fontSize:'2em', fontWeight:'900', letterSpacing:'5px', fontFamily:'Kulim Park, sans-serif'}}>PNEUSERVICE.DZ</p>
+                                <p style={{fontSize:'2em', fontWeight:'900',  fontFamily:'Archivo Black, sans-serif'}}>PNEUSERVICE.DZ</p>
                                 <p style={{}}>Le Leader de pneu pas cher en Algerie vous propose les meilleures promo. profitez-en !</p>
-                                <button style={{background:'#EF1A23', color:'#fff', fontSize:'1em', padding:'10px 15px', borderRadius:'5px', border:'none'}}>J'en profite</button>
+                                <button style={{background:'#EF1A23', color:'#fff', fontSize:'1.5em', fontWeight:'500', padding:'10px 20px', borderRadius:'5px', border:'none'}}>J'en profite</button>
                             </div>
                         </div>
                     </div>
@@ -782,6 +777,7 @@ function Home(props){
                  <Recommandation color='#EF1A23' rgb='rgb(255,0,0, 0.5)'/>
                  <div className='marques'>
                      <p className='titre-marques'>Nos marques de Pneu Auto</p>
+                     <Carousel/>
                  </div>
              </Section_marques>
          </div>

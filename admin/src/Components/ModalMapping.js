@@ -6,6 +6,15 @@ import TableMapping from './TableMapping'
 
 
 export default function MyVerticallyCenteredModal(props) {
+
+  const upload = (e) => {
+    const data = new FormData()
+    data.append('name', e.target.files[0].name)
+    data.append('categoryImage', e.target.files[0])
+};
+
+
+
     return (
       <Modal
         {...props}

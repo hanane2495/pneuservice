@@ -24,12 +24,12 @@ const Styles = styled.div`
     width: 5px;
     height: 1%;
     background: #fff;
-}
+    }
 
-&::-webkit-scrollbar-thumb{
+    &::-webkit-scrollbar-thumb{
     border-radius: 15px;
     background-color: #aaa;
-}
+    }
  }
   .tab-container{
       height:auto;

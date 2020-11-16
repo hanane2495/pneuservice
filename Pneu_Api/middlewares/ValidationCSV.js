@@ -6,13 +6,11 @@ module.exports = (req, res, next) => {
                 errors: `problème d'envoi de données`
             })
         }
-        console.log(req.body.name)
-        let name = req.body.name
-        let stock = req.file.path
+        console.log( 'file name : '+req.body.name)
+        console.log('file path : '+req.file.path)
+        console.log('file type : '+req.file.mimetype)
     
-        console.log(req.file.path)
-    
-        if (!(req.file.mimetype).includes('csv')) {
+        if (!(req.file.mimetype).includes('ms-excel')) {
             fs.unlinkSync(req.file.path)
             return res.status(400).json({
                 errors: "fichier non pris en charge"

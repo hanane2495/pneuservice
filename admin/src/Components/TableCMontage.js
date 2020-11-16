@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import MaterialTable from 'material-table';
+import axios from 'axios'
 
 import Search from "@material-ui/icons/Search"
  import ViewColumn from "@material-ui/icons/ViewColumn"
@@ -30,32 +31,70 @@ import Search from "@material-ui/icons/Search"
  `
 
 const TableCMontage = () => {
-    const [state, setState] = React.useState({
-        columns: [
-          { title: 'Centre', field: 'centre' },
-          { title: 'Telephone', field: 'tel' },
-          { title: 'Adresse', field: 'adresse' },
-          { title: 'Ville', field: 'ville', lookup: { 34: 'Oran', 63: 'Alger', 64:'Tlemcen', 65:'S.Belabes', 66:'Ain Temouchent'  } },
-          { title: 'Latitude', field: 'latitude', type:'numeric' },
-          { title: 'longitude', field: 'longitude', type:'numeric' },
-        ],
-        data: [
-          { centre: 'cc6225', tel: '06 61 74 34 21', adresse: '', ville: 34, latitude:43.54637, longitude:24.84664 },
-          { centre: 'cc6225', tel: '06 61 74 34 21', adresse: '', ville: 63, latitude:31.76545, longitude:61.27278},
-          { centre: 'cc6225', tel: '06 61 74 34 21', adresse: '', ville: 64, latitude:24.84664, longitude:43.54637 },
-          { centre: 'cc6225', tel: '06 61 74 34 21', adresse: '', ville: 65, latitude:30.53453, longitude:30.53453 },
-          { centre: 'cc6225', tel: '06 61 74 34 21', adresse: '', ville: 66, latitude:33.67353, longitude:31.76545 },
-          { centre: 'cc6225', tel: '06 61 74 34 21', adresse: '', ville: 64, latitude:61.27278, longitude:33.67353 },
-          {
-            code: 'cc6225',
-            client: 'Baran',
-            montant: 16000,
-            produits: '195R14C, 195R14C, 195R14C',
-            qt:4,
-            etat:34
-          },
-        ],
-      });
+  const [centreMontage, setCentreMontage] = useState([])
+  const [state, setState] = React.useState({});
+
+   
+    function trueFalse(service){
+      if(service === 'true'){
+        console.log(service)
+        return true
+      }else return false
+    }
+    
+    function handleDeleteCentreMontage(listCentreMontage){
+      axios.post(`${process.env.REACT_APP_API_URL}/delete/centre/montage`, {listCentreMontage})
+      .then(res => {
+        console.log(res.data.message)
+      })
+    }
+
+    function handleUpdateCentreMontage(nom, ville, telephone, adresse, montage, equilibrage, parallelisme, reparation, latitude, longitude, id_centre_montage){
+      axios.post(`${process.env.REACT_APP_API_URL}/update/centre/montage`, {nom, ville, telephone, adresse, montage, equilibrage, parallelisme, reparation, latitude, longitude, id_centre_montage})
+      .then(res => {
+        console.log(res.data.message)
+      })
+    }
+    function handleAddCentreMontage(nom, ville, telephone, adresse, montage, equilibrage, parallelisme, reparation, latitude, longitude){
+      axios.post(`${process.env.REACT_APP_API_URL}/ajouter/centre/montage`, {nom, ville, telephone, adresse, montage, equilibrage, parallelisme, reparation, latitude, longitude})
+      .then(res => {
+        console.log(res.data.message)
+      })
+    }
+    
+    useEffect(() => {
+      let cm = []
+      axios.post(`${process.env.REACT_APP_API_URL}/get/all/centre/montage`)
+      .then(res => { 
+        cm = res.data
+        setCentreMontage(cm)
+      })
+      .catch(err => {
+        console.log(err)
+      })
+    }, []) 
+    
+    useEffect(() => {
+    //nom, ville, telephone, adresse, montage, equilibrage, parallelisme, 
+    //reparation, latitude, longitude
+        setState({
+          columns: [
+            { title: 'Le Centre', field: 'nom'},
+            { title: 'Ville', field: 'ville'},
+            { title: 'Telephone', field: 'telephone'},
+            { title: 'Adresse', field: 'adresse'},
+            { title: 'montage', field: 'montage', lookup: { true: 'Oui', false: 'Non', null:'' }},
+            { title: 'equilibrage', field: 'equilibrage',  lookup: { true: 'Oui', false : 'Non', null:'' }},
+            { title: 'parallelisme', field: 'parallelisme',  lookup: { true: 'Oui', false : 'Non', null:'' }},
+            { title: 'reparation', field: 'reparation',  lookup: { true: 'Oui', false : 'Non', null:'' }},
+            { title: 'latitude', field: 'latitude'},
+            { title: 'longitude', field: 'longitude'}
+          ],
+          data:centreMontage,
+        }) 
+      
+    }, [centreMontage]) 
+
       return (
         <Styles>
         <MaterialTable
@@ -81,31 +120,10 @@ const TableCMontage = () => {
           }}
           columns={state.columns}
           data={state.data}
-          actions={[
-            {
-              icon: () => <SaveAlt />,
-              tooltip: 'Telecharger',
-              onClick: (event, rowData) => alert("You saved " + rowData.name)
-            },
-            {
-                icon: () => <DeleteIcon />,
-                tooltip: 'Telecharger',
-                onClick: (event, rowData) => alert("You saved " + rowData.name)
-            },
-            {
-                icon: ()=><EditIcon/>,
-                tooltip: 'Telecharger',
-                onClick: (event, rowData) => alert("You saved " + rowData.name)
-            }
-
-          ]}
+         
           options={{
             actionsColumnIndex: -1,
             selection: true,
-            fixedColumns: {
-              left: 0,
-              right: 1
-            }
           }}
           components={{
             Container: props => <div style={{background: 'none'}}>{props.children}</div>
@@ -114,6 +132,7 @@ const TableCMontage = () => {
             onRowAdd: (newData) =>
               new Promise((resolve) => {
                 setTimeout(() => {
+                  handleAddCentreMontage(newData.nom, newData.ville, newData.telephone, newData.adresse, trueFalse(newData.montage), trueFalse(newData.equilibrage), trueFalse(newData.parallelisme), trueFalse(newData.reparation), newData.latitude, newData.longitude)
                   resolve();
                   setState((prevState) => {
                     const data = [...prevState.data];
@@ -127,6 +146,8 @@ const TableCMontage = () => {
                 setTimeout(() => {
                   resolve();
                   if (oldData) {
+                    console.log(newData.montage)
+                    handleUpdateCentreMontage(newData.nom, newData.ville, newData.telephone, newData.adresse, trueFalse(newData.montage), trueFalse(newData.equilibrage), trueFalse(newData.parallelisme), trueFalse(newData.reparation), newData.latitude, newData.longitude, oldData.id_centre_montage)
                     setState((prevState) => {
                       const data = [...prevState.data];
                       data[data.indexOf(oldData)] = newData;
@@ -139,6 +160,8 @@ const TableCMontage = () => {
               new Promise((resolve) => {
                 setTimeout(() => {
                   resolve();
+                  let listCentreMontage = [oldData.id_centre_montage]
+                  handleDeleteCentreMontage(listCentreMontage)
                   setState((prevState) => {
                     const data = [...prevState.data];
                     data.splice(data.indexOf(oldData), 1);

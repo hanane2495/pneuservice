@@ -29,7 +29,45 @@ import Search from "@material-ui/icons/Search"
   }
  `
 
-const TableStock = () => {
+const TableStock = (props) => {
+
+  const [produit, setFournisseurs] = useState([])
+  const [state, setState] = React.useState({});
+    
+    function handleDeleteProduit(listFournisseurs){
+      axios.post(`${process.env.REACT_APP_API_URL}/delete/Fournisseur`, {listFournisseurs})
+      .then(res => {
+        console.log(res.data.message)
+      })
+    }
+
+    function handleUpdateProduit(nom, prenom, email, telephone, adresse, banque, agence, nis, matricule_fiscale, n_registre, n_article_imposition, forme_juridique, raison_sociale, numero_rib, cle_rib , id_fournisseur){
+      axios.post(`${process.env.REACT_APP_API_URL}/update/Fournisseur`, {nom, prenom, email, telephone, adresse, banque, agence, nis, matricule_fiscale, n_registre, n_article_imposition, forme_juridique, raison_sociale, numero_rib, cle_rib , id_fournisseur})
+      .then(res => {
+        console.log(res.data.message)
+      })
+    }
+    function handleAddProduit(nom, prenom, email, telephone, adresse, banque, agence, nis, matricule_fiscale, n_registre, n_article_imposition, forme_juridique, raison_sociale, numero_rib, cle_rib){
+      axios.post(`${process.env.REACT_APP_API_URL}/add/Fournisseur`, {nom, prenom, email, telephone, adresse, banque, agence, nis, matricule_fiscale, n_registre, n_article_imposition, forme_juridique, raison_sociale, numero_rib, cle_rib})
+      .then(res => {
+        console.log(res.data.message)
+      })
+    }
+    
+    useEffect(() => {
+        setState({
+          columns: [
+            { title: 'ID pneu fournisseur', field: 'suppliers_code'},  
+            { title: 'ID fournisseur', field: 'id_fournisseur'},
+            { title: 'ID Designation', field: 'designation'},
+            { title: 'ID pneu service', field: 'id_pneu_service'},
+
+          ],
+          data:props.produits_non_mappee,
+        }) 
+      
+    }, [fournisseurs]) 
+
     const [state, setState] = React.useState({
         columns: [
           { title: 'ID supplier', field: 'code_fournisseur' },
