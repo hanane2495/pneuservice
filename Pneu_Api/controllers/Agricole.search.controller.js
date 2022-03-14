@@ -26,6 +26,7 @@ const PneuAgricole = require('../models/pneu.agricole.model')
 const {errorHandler } = require('../helpers/dbErrorHandlling')
 const { forEach } = require('lodash')
 
+//marque_img
 
 //recherche agricole par dimension 
 exports.searchLargeurController = (req, res) =>{
@@ -187,7 +188,7 @@ exports.searchPneusController = (req, res) => {
                      var pneus_sprix  = results.rows
                      pneus_sprix.forEach(pneu_sprix => {
                          pneus2.push(
-                             //id_pneu_pl,  designation_ag, collection, type, marque, largeur, hauteur, position, carburant, adherence, bruit, promo, marge, image_pneu, image_1, image_2, image_marque
+                             //id_pneu_pl,  designation_ag, collection, type, marque, largeur, hauteur, position, carburant, adherence, bruit, promo, marge, image_pneu, image_1, image_2, marque_img
                              {
                                 pneu_id:pneu_sprix.id_pneu_ag,
                                 designation:pneu_sprix.designation_ag,
@@ -209,7 +210,7 @@ exports.searchPneusController = (req, res) => {
                                 image_pneu:pneu_sprix.image_pneu,
                                 image_1:pneu_sprix.image_1,
                                 image_2:pneu_sprix.image_2,
-                                image_marque:pneu_sprix.image_marque
+                                marque_img:pneu_sprix.marque_img
                              }
                          )
                      })
@@ -229,20 +230,20 @@ exports.searchPneusController = (req, res) => {
    }else{
        pool.connect((err, db, done) => {
            //type de pneu !== tous marque !== tous
-           const requetegenerale1='select id_pneu_ag, designation_ag, collection, type, marque, largeur, hauteur, diametre, charge, vitesse, position, plis, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(stock.price,0) as price, image_pneu, image_1, image_2, image_marque from pneu_agricole, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_agricole.id_pneu_ag and mapping_pneu_four.id_pneu_fournisseur = stock.suppliers_code and mapping_pneu_four.designation = pneu_agricole.designation_ag and largeur=$1 and hauteur=$2 and diametre=$3 and type=$4 and marque=$5 order by id_pneu_ag'
-           const requete1='select id_pneu_ag, designation_ag, collection, type, marque, largeur, hauteur, diametre, charge, vitesse, position, plis, carburant, adherence, bruit, promo, marge, image_pneu, image_1, image_2, image_marque from pneu_agricole where largeur=$1 and hauteur=$2 and diametre=$3 and type=$4 and marque=$5 order by id_pneu_ag'
+           const requetegenerale1='select id_pneu_ag, designation_ag, collection, type, marque, largeur, hauteur, diametre, charge, vitesse, position, plis, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(stock.price,0) as price, image_pneu, image_1, image_2, marque_img from pneu_agricole, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_agricole.id_pneu_ag and mapping_pneu_four.id_pneu_fournisseur = stock.suppliers_code and mapping_pneu_four.designation = pneu_agricole.designation_ag and largeur=$1 and hauteur=$2 and diametre=$3 and type=$4 and marque=$5 order by id_pneu_ag'
+           const requete1='select id_pneu_ag, designation_ag, collection, type, marque, largeur, hauteur, diametre, charge, vitesse, position, plis, carburant, adherence, bruit, promo, marge, image_pneu, image_1, image_2, marque_img from pneu_agricole where largeur=$1 and hauteur=$2 and diametre=$3 and type=$4 and marque=$5 order by id_pneu_ag'
            const parametres1 = [req.body.largeur, req.body.hauteur, req.body.diametre, req.body.type, req.body.marque]
            //type de pneu !== tous marque == tous
-           const requetegenerale2='select id_pneu_ag, designation_ag, collection, type, marque, largeur, hauteur, diametre, charge, vitesse, position, plis, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(stock.price,0) as price, image_pneu, image_1, image_2, image_marque from pneu_agricole, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_agricole.id_pneu_ag and mapping_pneu_four.id_pneu_fournisseur = stock.suppliers_code and mapping_pneu_four.designation = pneu_agricole.designation_ag and largeur=$1 and hauteur=$2 and diametre=$3 and type=$4 order by id_pneu_ag'
-           const requete2='select id_pneu_ag, designation_ag, collection, type, marque, largeur, hauteur, diametre, charge, vitesse, position, plis, carburant, adherence, bruit, promo, marge, image_pneu, image_1, image_2, image_marque from pneu_agricole where largeur=$1 and hauteur=$2 and diametre=$3 and marque=$4 order by id_pneu_ag'
+           const requetegenerale2='select id_pneu_ag, designation_ag, collection, type, marque, largeur, hauteur, diametre, charge, vitesse, position, plis, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(stock.price,0) as price, image_pneu, image_1, image_2, marque_img from pneu_agricole, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_agricole.id_pneu_ag and mapping_pneu_four.id_pneu_fournisseur = stock.suppliers_code and mapping_pneu_four.designation = pneu_agricole.designation_ag and largeur=$1 and hauteur=$2 and diametre=$3 and type=$4 order by id_pneu_ag'
+           const requete2='select id_pneu_ag, designation_ag, collection, type, marque, largeur, hauteur, diametre, charge, vitesse, position, plis, carburant, adherence, bruit, promo, marge, image_pneu, image_1, image_2, marque_img from pneu_agricole where largeur=$1 and hauteur=$2 and diametre=$3 and marque=$4 order by id_pneu_ag'
            const parametres2 = [req.body.largeur, req.body.hauteur, req.body.diametre, req.body.type]
            //type de pneu === tous marque !== tous
-           const requetegenerale3='select id_pneu_ag,  designation_ag, collection, type, marque, largeur, hauteur, diametre, charge, vitesse, position, plis, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(stock.price,0) as price, image_pneu, image_1, image_2, image_marque from pneu_agricole,stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_agricole.id_pneu_ag and mapping_pneu_four.id_pneu_fournisseur = stock.suppliers_code and mapping_pneu_four.designation = pneu_agricole.designation_ag and largeur=$1 and hauteur=$2 and diametre=$3 and marque=$4 order by id_pneu_ag'
-           const requete3='select id_pneu_ag, designation_ag, collection, type, marque, largeur, hauteur, diametre, charge, vitesse, position, plis, carburant, adherence, bruit, promo, marge, image_pneu, image_1, image_2, image_marque from pneu_agricole where largeur=$1 and hauteur=$2 and diametre=$3 and marque=$4 order by id_pneu_ag'
+           const requetegenerale3='select id_pneu_ag,  designation_ag, collection, type, marque, largeur, hauteur, diametre, charge, vitesse, position, plis, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(stock.price,0) as price, image_pneu, image_1, image_2, marque_img from pneu_agricole,stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_agricole.id_pneu_ag and mapping_pneu_four.id_pneu_fournisseur = stock.suppliers_code and mapping_pneu_four.designation = pneu_agricole.designation_ag and largeur=$1 and hauteur=$2 and diametre=$3 and marque=$4 order by id_pneu_ag'
+           const requete3='select id_pneu_ag, designation_ag, collection, type, marque, largeur, hauteur, diametre, charge, vitesse, position, plis, carburant, adherence, bruit, promo, marge, image_pneu, image_1, image_2, marque_img from pneu_agricole where largeur=$1 and hauteur=$2 and diametre=$3 and marque=$4 order by id_pneu_ag'
            const parametres3 = [req.body.largeur, req.body.hauteur, req.body.diametre, req.body.marque]
            //type de pneu === tous marque === tous
-           const requetegenerale4='select id_pneu_ag,  designation_ag, collection, type, marque, largeur, hauteur, diametre, charge, vitesse, position, plis, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(stock.price,0) as price, image_pneu, image_1, image_2, image_marque from pneu_agricole,stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_agricole.id_pneu_ag and mapping_pneu_four.id_pneu_fournisseur = stock.suppliers_code and mapping_pneu_four.designation = pneu_agricole.designation_ag and largeur=$1 and hauteur=$2 and diametre=$3 order by id_pneu_ag'
-           const requete4='select id_pneu_ag, designation_ag, collection, type, marque, largeur, hauteur, diametre, charge, vitesse, position, carburant, plis, adherence, bruit, promo, marge, image_pneu, image_1, image_2, image_marque from pneu_agricole where largeur=$1 and hauteur=$2 and diametre=$3 order by id_pneu_ag'
+           const requetegenerale4='select id_pneu_ag,  designation_ag, collection, type, marque, largeur, hauteur, diametre, charge, vitesse, position, plis, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(stock.price,0) as price, image_pneu, image_1, image_2, marque_img from pneu_agricole,stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_agricole.id_pneu_ag and mapping_pneu_four.id_pneu_fournisseur = stock.suppliers_code and mapping_pneu_four.designation = pneu_agricole.designation_ag and largeur=$1 and hauteur=$2 and diametre=$3 order by id_pneu_ag'
+           const requete4='select id_pneu_ag, designation_ag, collection, type, marque, largeur, hauteur, diametre, charge, vitesse, position, carburant, plis, adherence, bruit, promo, marge, image_pneu, image_1, image_2, marque_img from pneu_agricole where largeur=$1 and hauteur=$2 and diametre=$3 order by id_pneu_ag'
            const parametres4 = [req.body.largeur, req.body.hauteur, req.body.diametre]
 
            if(err){
@@ -389,6 +390,85 @@ exports.updatePneuController = (req, res) =>{
     }
     
 }
+
+//activer/desactiver
+exports.activerDesactiverController = (req, res) =>{
+    const errors = validationResult(req)
+
+    if(!errors.isEmpty()){
+        const firstError = errors.array().map(error => error.msg)[0]
+        return res.status(422).json({
+            error: firstError
+        })
+    }else{
+        req.body.dataToUpdate.forEach(item => {
+            pool.connect((err, db, done) => {
+                if(err){
+                    return res.send(err);
+                }else{
+                    db.query(`update pneu_agricole set statut = $1 where id_pneu_ag = $2`,
+                       [item.statut, item.id],
+                       (err, results) => {
+                           done()
+                           if(err){
+                            console.log(err)
+                        }else{
+                            console.log('success')
+                        }
+                    })
+                }
+            })
+        })
+        return res.json({
+            message : `Operation Reussie`
+        })
+                
+    }
+}
+   
+
+//ajouter promo a plusieur pneu a la fois 
+exports.ajouterPromoController = (req, res) =>{
+    const errors = validationResult(req)
+
+    if(!errors.isEmpty()){
+        const firstError = errors.array().map(error => error.msg)[0]
+        return res.status(422).json({
+            error: firstError
+        })
+    }else{
+        req.body.dataToUpdate.forEach(item => {
+            pool.connect((err, db, done) => {
+                if(err){
+                    return res.send(err);
+                }else{
+                    db.query(`update pneu_agricole set promo = $1, id_promo = $2 where id_pneu_ag = $3`,
+                       [req.body.valeur_promo, req.body.id_promo, item.id_pneu_ag],
+                       (err, results) => {
+                           done()
+                           if(err){
+                            console.log(err)
+                        }else{
+                            console.log('success')
+                        }
+                    })
+                }
+            })
+        })
+        return res.json({
+            message : `Operation Reussie`
+        })
+    }
+}
+
+
+
+//activerDesactiverController
+//ajouterPromoSelection
+
+///ajouter/promo
+///activer/desactiver/pneu
+
 
 
 

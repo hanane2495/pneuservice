@@ -49,6 +49,8 @@ const centreMontageRouter = require('./routes/centreMontage.route')
 const mappingRouter = require('./routes/mapping.route')
 const promoRouter = require('./routes/promo.route')
 const pubRouter = require('./routes/page.route')
+const collectionRouter = require('./routes/collection.route')
+const marqueRouter =  require('./routes/marque.route')
 
 //Use routes
 app.use('/api/', authRouter)
@@ -64,6 +66,8 @@ app.use('/api/', centreMontageRouter)
 app.use('/api/', mappingRouter)
 app.use('/api/', promoRouter)
 app.use('/api/', pubRouter)
+app.use('/api/', collectionRouter)
+app.use('/api/', marqueRouter)
 
 
 const PORT = process.env.PORT

@@ -56,6 +56,30 @@ module.exports = db.define(
        promo:{
         type: Sequelize.STRING
        },
+       point_fort : {
+           type : Sequelize.ARRAY(Sequelize.TEXT)
+       },
+       gamme : {
+           type :  Sequelize.STRING
+       },
+       usage : {
+           type : Sequelize.STRING
+       },
+       description : {
+           type : Sequelize.TEXT
+       },
+       image_pneu : {
+           type: Sequelize.TEXT
+       },
+       image_1:{
+           type:Sequelize.TEXT
+       },
+       image_2:{
+           type:Sequelize.TEXT
+       },
+       marque_img:{
+        type: Sequelize.STRING
+       }
     },{
         timestamps: false,
         freezeTableName: true

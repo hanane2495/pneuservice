@@ -31,7 +31,7 @@ const {
 } = require('../controllers/auto.search.controller')
 
 //search par dimension 
-router.get('/search/dimension/largeur', searchDimensionLargeurController)
+router.post('/search/dimension/largeur', searchDimensionLargeurController)
 router.post('/search/dimension/hauteur', searchDimensionHauteurController)
 router.post('/search/dimension/diametre', searchDimensionDiametreController)
 router.post('/search/dimension/charge', searchDimensionChargeController)

@@ -62,7 +62,7 @@ exports.getStockController = (req, res) => {
 exports.addStockController = (req, res) => {
     const errors = validationResult(req)
     var today = new Date();
-    var date_ajout = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+(today.getDate()+1);
+    var date_ajout = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+(today.getDate());
     
         if(!errors.isEmpty()){
             const firstError = errors.array().map(error => error.msg)[0]
@@ -80,9 +80,32 @@ exports.addStockController = (req, res) => {
                       element.id_fournisseur = req.body.id_fournisseur
                       element.date_ajout = date_ajout
                   })
-                  
-                  Stock.bulkCreate(stock) // will return only the specified columns for each row inserted
-                  .then(() => { 
+                  //Stock.bulkCreate(stock, { updateOnDuplicate: ["suppliers_code" ] }) // will return only the specified columns for each row inserted
+                  stock.forEach(item => {
+                    pool.connect((err, db, done) => {
+                        if(err){
+                            return res.send(err);
+                        }else{
+                            db.query(`INSERT INTO stock (suppliers_code, qte, price, id_fournisseur, date_ajout, designation) 
+                                        VALUES ($1, $2, $3, $4, $5, $6)
+                                        ON CONFLICT (suppliers_code) DO UPDATE 
+                                        SET qte = excluded.qte,
+                                            price = excluded.price,
+                                            id_fournisseur = excluded.id_fournisseur,
+                                            date_ajout = excluded.date_ajout,
+                                            designation = excluded.designation`,
+                               [item.suppliers_code, item.qte, item.price, req.body.id_fournisseur, date_ajout, item.designation],
+                               (err, results) => {
+                                   done()
+                                   if(err){
+                                    console.log(err)
+                                }else{
+                                    console.log('success')
+                                }
+                            })
+                        }
+                    })
+                })
                       // Notice: There are no arguments here, as of right now you'll have to...
                     Mapping.findAll({
                         raw : true,
@@ -101,14 +124,16 @@ exports.addStockController = (req, res) => {
                                 }
                             }).then( stocks => {
                                 return res.json({
+                                    stock : stock,
                                     produits_non_mappee : stocks
                                 })
                             })
                         })
-                    })
+                    
                 })
         }
 }
+
 
 //delete pneu auto
 exports.deleteStockController = (req, res) =>{
@@ -195,3 +220,122 @@ exports.getAllPneusController = (req, res) =>{
         })
     } 
 }
+
+
+/**
+ * INSERT INTO stock (suppliers_code, qte, price, id_fournisseur, date_ajout, designation) 
+VALUES ('10.516P', 100, 20000,'9','2021-01-28', 'designation')
+ON CONFLICT (suppliers_code) DO UPDATE 
+  SET qte = excluded.qte,
+      date_ajout = excluded.date_ajout,
+	  id_fournisseur = excluded.id_fournisseur,
+	  designation = excluded.designation,
+      price = excluded.price;
+ */
+
+
+
+exports.addStockController = (req, res) => {
+    const errors = validationResult(req)
+    var today = new Date();
+    var date_ajout = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+(today.getDate());
+    
+    if(!errors.isEmpty()){
+        const firstError = errors.array().map(error => error.msg)[0]
+        return res.status(422).json({
+            error: firstError
+        })
+    }else{
+        console.log(req.file.path)
+        const stock = []
+        const produits_non_mappee = []
+        fs.createReadStream(req.file.path)
+            .pipe(csv({ separator: ';' }))
+            .on('data', (data) => stock.push(data))
+            .on('end', () => {
+                stock.forEach((element) => {
+                    element.id_fournisseur = req.body.id_fournisseur
+                    element.date_ajout = date_ajout
+                })
+
+                Stock.bulkCreate(stock)
+                .then(()=>{
+                    Mapping.findAll({
+                    raw : true,
+                    attributes: ['id_pneu_fournisseur']
+                    }).then((ids_pneu_fournisseur) => {
+                        let id_suppliers = []
+                        ids_pneu_fournisseur.forEach(item => {
+                            id_suppliers.push(item.id_pneu_fournisseur)
+                        })
+                        Stock.findAll({
+                            raw : true,
+                            where : {
+                                suppliers_code : {
+                                    [Op.notIn] : id_suppliers
+                                }
+                            }
+                        }).then(stocks => {
+                            return res.json({
+                                stock : stock,
+                                produits_non_mappee : stocks
+                            })
+                        })
+                    })
+                }).catch(error => {
+                    res.json(error);
+                })
+                
+            })
+    }
+}
+
+
+
+
+/***
+ * 
+ * stock.forEach(item => {
+                    Stock.findOne({ where: {suppliers_code : item.suppliers_code} })
+                    .then(obj => {
+                        if(obj){
+                            pool.connect((err, db, done) => {
+                                if(err){
+                                    return res.send(err);
+                                }else{
+                                    db.query(`UPDATE stock SET qte = $1, price = , id_fournisseur = , date_ajout = , designation_f =  where suppliers_code = `,
+                                       [item.suppliers_code, item.qte, item.price, req.body.id_fournisseur, date_ajout, item.designation_f],
+                                       (err, results) => {
+                                           done()
+                                           if(err){
+                                            console.log(err)
+                                        }else{
+                                            console.log('success')
+                                        }
+                                    })
+                                }
+                            })
+                        }else{
+                            pool.connect((err, db, done) => {
+                                if(err){
+                                    return res.send(err);
+                                }else{
+                                    db.query(`INSERT INTO stock (suppliers_code, qte, price, id_fournisseur, date_ajout, designation_f) VALUES ($1, $2, $3, $4, $5, $6)`,
+                                       [item.suppliers_code, item.qte, item.price, req.body.id_fournisseur, date_ajout, item.designation_f],
+                                       (err, results) => {
+                                           done()
+                                           if(err){
+                                            console.log(err)
+                                        }else{
+                                            console.log('success')
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })
+                    
+                })
+
+ * 
+ */

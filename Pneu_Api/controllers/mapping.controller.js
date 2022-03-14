@@ -167,3 +167,44 @@ exports.updateMappingController = (req, res) =>{
         })
     } 
 }
+
+
+
+//send produit non mappee
+exports.ProduitNonMappeeController = (req, res) =>{
+    const errors = validationResult(req)
+
+    if(!errors.isEmpty()){
+        const firstError = errors.array().map(error => error.msg)[0]
+        return res.status(422).json({
+            error: firstError
+        })
+    }else{
+        Mapping.findAll({
+            raw : true,
+            attributes: ['id_pneu_fournisseur']
+        }).then((ids_pneu_fournisseur) => {
+                let id_suppliers = []
+                ids_pneu_fournisseur.forEach(item => {
+                   id_suppliers.push(item.id_pneu_fournisseur)
+                })
+                Stock.findAll({
+                    raw : true,
+                    where : {
+                        suppliers_code : {
+                            [Op.notIn] : id_suppliers
+                        }
+                    }
+                }).then( stocks => {
+                    return res.json({
+                        produits_non_mappee : stocks
+                    })
+                })
+            }).catch(err =>{
+            res.json({
+                error : err
+            })
+        })
+        
+    } 
+}    

@@ -7,6 +7,8 @@ const db = require('../config/db')
 const pg = require('pg')
 const path = require("path");
 const nodemailer = require('nodemailer')
+const PDFDocument = require('pdfkit')
+const fs = require('fs')
 
 //connect to database
 let pool = new pg.Pool({
@@ -86,8 +88,8 @@ exports.ajouterCommandeController = (req, res) =>{
                     //sending email -------------------------------
                     //step 1 : defining email content
                     const emailData = {
-                        from: '"Pneu Service 🔧" <test@monsterstudio.org>', // sender address
-                        to: `${req.body.email}, hhammoumi@monsterstudio.org`, // list of receivers
+                        from: '"Pneu Service 🔧" <contact@pneuservice.dz>', // sender address
+                        to: `${req.body.email}, @monsterstudio.org`, // list of receivers
                         subject: `Commande #${code} ✔`, // Subject line
                         text: `BONJOUR Mr.${req.body.nom}`, // plain text body
                         html:`
@@ -408,3 +410,36 @@ exports.updateCommandeController = (req, res) =>{
     }
 }
 
+exports.validerCommandeController = (req, res) =>{
+
+    //step 1 : generate a pdf 
+
+    const bonLivraison = 'Bon-Livraison-'+req.body.id+'.pdf'
+    const chemin = path.join('uploads', 'bonLivraison', bonLivraison)
+
+    const pdfDoc = new PDFDocument();
+
+    res.setHeader('Content-type','application/pdf')
+    res.setHeader('Content-Disposition', 'inline; filename ="'+bonLivraison+ '"')
+ 
+    const writeStream = fs.createWriteStream(chemin)
+
+    pdfDoc.pipe(fs.createWriteStream(chemin))
+    pdfDoc.pipe(res)
+
+    pdfDoc.text('hello world !');
+
+    
+
+    pdfDoc.end()
+
+    
+
+    //step 2 : modifier l'etat de la cpmmande (en attente ===> valide)
+    //step 3 : generate email with attachement of the pdf 
+
+}
+
+exports.refuserCommandeController = (req, res) => {
+    console.log('refser')
+}

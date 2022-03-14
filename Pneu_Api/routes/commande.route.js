@@ -7,13 +7,17 @@ const {
     ajouterCommandeController,
     getCommandeController,
     deleteCommandeController,
-    updateCommandeController
+    updateCommandeController,
+    validerCommandeController,
+    refuserCommandeController
 } = require('../controllers/commande.controller')
 
 router.post('/ajouter/commande', ajouterCommandeController)
 router.post('/get/commande', getCommandeController)
 router.post('/delete/commande', deleteCommandeController)
 router.post('/update/commande', updateCommandeController)
+router.post('/valider/commande', validerCommandeController)
+router.post('/refuser/commande', refuserCommandeController)
 
 
 

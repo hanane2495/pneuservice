@@ -71,6 +71,7 @@ exports.AddPromoController = (req, res) => {
                 if(err){
                     return res.send(err);
                 }else{
+                    console.log(req.body.nom_promo, req.body.slogan_promo, req.body.valeur_promo, req.body.type_promo, req.body.code_promo)
                     db.query('insert into promo(nom_promo, slogan_promo, valeur_promo, type_promo, code_promo) values($1, $2, $3, $4, $5)',
                       [req.body.nom_promo, req.body.slogan_promo, req.body.valeur_promo, req.body.type_promo, req.body.code_promo] ,
                       (err, results) => {

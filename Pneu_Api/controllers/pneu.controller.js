@@ -39,7 +39,8 @@ exports.detailPneuAutoController = (req, res) =>{
             if(err){
                 return res.send(err);
             }else{
-                db.query('select pneu_id, designation_pneu, collection, type, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(prix,0) as price, image_url from pneu_dimension, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_dimension.pneu_id and mapping_pneu_four.id_pneu_fournisseur = stock.id_supplier and pneu_id = $1',
+                console.log("execute details pneu")
+                db.query('select pneu_id, designation_pneu, collection, type, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(price,0) as price, image_pneu from pneu_dimension, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_dimension.pneu_id and mapping_pneu_four.id_pneu_fournisseur = stock.suppliers_code and pneu_id = $1',
                 [req.body.id] ,(err, results) => {
                     done()
                     if(err){
@@ -71,7 +72,7 @@ exports.detailPneuAutoController = (req, res) =>{
                                                 bruit:pneu_sprix.bruit,
                                                 promo:pneu_sprix.promo,
                                                 price:0,
-                                                image_url:pneu_sprix.image_url
+                                                image_pneu:pneu_sprix.image_pneu
                                             }
                                         )
                                     })
@@ -105,7 +106,7 @@ exports.detailPneuMotoController = (req, res) =>{
             if(err){
                 return res.send(err);
             }else{
-                db.query('select id_pneu_m, designation_m, collection, type, marque, image_marque, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(prix,0) as price, image_pneu from pneu_moto, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_moto.id_pneu_m and mapping_pneu_four.id_pneu_fournisseur = stock.id_supplier and id_pneu_m = $1',
+                db.query('select id_pneu_m, designation_m, collection, type, marque, marque_img, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(price,0) as price, image_pneu from pneu_moto, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_moto.id_pneu_m and mapping_pneu_four.id_pneu_fournisseur = stock.suppliers_code and id_pneu_m = $1',
                 [req.body.id] ,(err, results) => {
                     done()
                     if(err){
@@ -137,8 +138,8 @@ exports.detailPneuMotoController = (req, res) =>{
                                                 bruit:pneu_sprix.bruit,
                                                 promo:pneu_sprix.promo,
                                                 price:0,
-                                                image_url:pneu_sprix.image_pneu,
-                                                marque_img : pneu_sprix.image_marque,
+                                                image_pneu:pneu_sprix.image_pneu,
+                                                marque_img : pneu_sprix.marque_img,
                                                 image_1: pneu_sprix.image_1,
                                                 image_2:pneu_sprix.image_2
                                             }
@@ -174,7 +175,7 @@ exports.detailPneuPLController = (req, res) =>{
             if(err){
                 return res.send(err);
             }else{
-                db.query('select id_pneu_pl, designation_pl, collection, type, marque, img_marque, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(prix,0) as price, image_pneu from pneu_poids_lourds, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_poids_lourds.id_pneu_pl and mapping_pneu_four.id_pneu_fournisseur = stock.id_supplier and id_pneu_pl = $1',
+                db.query('select id_pneu_pl, designation_pl, collection, type, marque, image_pneu, largeur, hauteur, charge, vitesse, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(price,0) as price, image_pneu from pneu_poids_lourds, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_poids_lourds.id_pneu_pl and mapping_pneu_four.id_pneu_fournisseur = stock.suppliers_code and id_pneu_pl = $1',
                 [req.body.id] ,(err, results) => {
                     done()
                     if(err){
@@ -206,8 +207,8 @@ exports.detailPneuPLController = (req, res) =>{
                                                 bruit:pneu_sprix.bruit,
                                                 promo:pneu_sprix.promo,
                                                 price:0,
-                                                image_url:pneu_sprix.image_pneu,
-                                                marque_img : pneu_sprix.img_marque,
+                                                image_pneu:pneu_sprix.image_pneu,
+                                                marque_img : pneu_sprix.image_pneu,
                                                 image_1 : pneu_sprix.image_1,
                                                 image_2 : pneu_sprix.image_2
                                             }
@@ -243,7 +244,7 @@ exports.detailPneuAgricoleController = (req, res) =>{
             if(err){
                 return res.send(err);
             }else{
-                db.query('select id_pneu_ag, designation_ag, collection, type, marque, image_marque, largeur, hauteur, charge, vitesse, plis, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(prix,0) as price, image_pneu from pneu_agricole, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_agricole.id_pneu_ag and mapping_pneu_four.id_pneu_fournisseur = stock.id_supplier and id_pneu_ag = $1',
+                db.query('select id_pneu_ag, designation_ag, collection, type, marque, marque_img, largeur, hauteur, charge, vitesse, plis, carburant, adherence, bruit, promo, COALESCE(marge,0) + COALESCE(price,0) as price, image_pneu from pneu_agricole, stock, mapping_pneu_four where mapping_pneu_four.id_pneu_service = pneu_agricole.id_pneu_ag and mapping_pneu_four.id_pneu_fournisseur = stock.suppliers_code and id_pneu_ag = $1',
                 [req.body.id] ,(err, results) => {
                     done()
                     if(err){
@@ -276,7 +277,7 @@ exports.detailPneuAgricoleController = (req, res) =>{
                                                 promo:pneu_sprix.promo,
                                                 price:0,
                                                 image_pneu:pneu_sprix.image_pneu,
-                                                image_marque:pneu_sprix.image_marque
+                                                marque_img:pneu_sprix.marque_img
                                             }
                                         )
                                     })

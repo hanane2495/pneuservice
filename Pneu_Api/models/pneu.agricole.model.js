@@ -74,9 +74,21 @@ module.exports = db.define(
        image_2:{
         type: Sequelize.STRING
        },
-       image_marque:{
+       marque_img:{
         type: Sequelize.STRING
        },
+       point_fort : {
+           type:Sequelize.ARRAY(Sequelize.TEXT)
+        },
+        gamme : {
+            type :  Sequelize.STRING
+        },
+        usage : {
+            type : Sequelize.STRING
+        },
+        description : {
+            type : Sequelize.TEXT
+        }
     },{
         timestamps: false,
         freezeTableName: true

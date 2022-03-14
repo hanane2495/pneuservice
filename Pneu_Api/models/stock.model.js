@@ -7,25 +7,26 @@ module.exports = db.define(
     'stock',
     {
         suppliers_code:{
-            type: Sequelize.STRING,
-            primaryKey : true
+            type: Sequelize.STRING, 
+            primaryKey : true    
+       },
+       designation:{
+        type: Sequelize.STRING   
        },
        qte:{
            type: Sequelize.INTEGER
        },
        price:{
-           type: Sequelize.INTEGER,
+           type: Sequelize.INTEGER
        },
        id_fournisseur:{
-        type: Sequelize.STRING,
-        primaryKey : true
+        type: Sequelize.STRING
+        
 
        },
        date_ajout:{
-        type: Sequelize.DATE,
-        primaryKey : true
-
-       },
+        type: Sequelize.DATE
+       }
     },{
         timestamps: false,
         freezeTableName: true
