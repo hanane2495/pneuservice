@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import MaterialTable from 'material-table';
 
 import Search from "@material-ui/icons/Search"
@@ -15,13 +15,17 @@ import Search from "@material-ui/icons/Search"
  import EditIcon from '@material-ui/icons/Edit';
  import ClearIcon from '@material-ui/icons/Clear';
  import SaveIcon from '@material-ui/icons/Save';
+ import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
+ import BeenhereIcon from '@material-ui/icons/Beenhere';
  import LocalOfferIcon from '@material-ui/icons/LocalOffer';
 
  import axios from 'axios'
  
  import styled from 'styled-components';
 
-
+  //components
+  import MyVerticallyCenteredModalActive from './ModalActiverDesactiver';
+  import MyVerticallyCenteredModalPromo from './ModalAddPromo';
 
  const Styles = styled.div`
  .MuiTableCell-root {
@@ -34,9 +38,20 @@ import Search from "@material-ui/icons/Search"
 
 const TablePneu = () => {
 
+  //modals
+  const [modalAddPromo, setModalAddPromo] = React.useState(false);
+  const [modalActiverDesativer, setModalActiverDesativer] = React.useState(false);
+
     const [pneus, setPneus] = useState([])
     const [promo, setPromo] = useState({})
     const [state, setState] = React.useState({});
+    const [initialFormData, setInitialFormData] = useState({})
+
+    const [dataToUpdate, setDataToUpdate] = useState([])
+    const [dataToUpdate1, setDataToUpdate1] = useState([])
+
+
+  const materialTableRef = useRef(null)
       
       function handleDeletePneu (listPneu){
           console.log(listPneu)
@@ -70,7 +85,7 @@ const TablePneu = () => {
           console.log(err)
         })
 
-        //get promos
+      //get promos
       var pro = {}
       axios.post(`${process.env.REACT_APP_API_URL}/get/promo`)
       .then(res => { 
@@ -80,6 +95,7 @@ const TablePneu = () => {
           enumerable : true,
           configurable : true})
         })
+        console.log(res.data)
         setPromo(pro)
       })
       .catch(err => {
@@ -90,6 +106,8 @@ const TablePneu = () => {
       useEffect(() => {
           setState({
             columns: [
+              { title: 'statut', field: 'statut', render: rowData => rowData.statut == 'Actif' ? <p style={{color:'#8BC34A'}}>{rowData.statut}</p> : <p style={{color:'red'}}>{rowData.statut}</p>},
+              { title: 'promo', field: 'promo', render: rowData => rowData.promo == null ? null : <p style={{background:'#8BC34A', borderRadius:'50%', height:'40px', width:'40px', color:'white', display:'flex', justifyContent:'center', alignItems:'center'}}>- {rowData.promo}%</p>},
               { title: 'Designation', field: 'designation_ag'},
               { title: 'Categorie', field: 'categorie'},
               { title: 'Collection', field: 'collection'},
@@ -105,8 +123,7 @@ const TablePneu = () => {
               { title: 'carburant', field: 'carburant'},
               { title: 'adherence', field: 'adherence'},
               { title: 'bruit', field: 'bruit'},
-              { title: 'marge', field: 'marge'},
-              { title: 'promo', field: 'promo', lookup: promo}
+              { title: 'marge', field: 'marge'}
             ],
             data:pneus,
           }) 
@@ -117,7 +134,7 @@ const TablePneu = () => {
         <Styles>
         <MaterialTable
           style={{width:'100%', height:'100%'}}
-          title="Pneus Agicoles"
+          title="Pneus Agricoles"
           
           icons={{
             Check: () => <Check />,
@@ -135,45 +152,74 @@ const TablePneu = () => {
             Delete: () => < DeleteIcon/>,
             Edit: ()=><EditIcon/>,
             Clear : () => <ClearIcon/>,
-            Save : () => <SaveIcon/>
+            Save : () => <SaveIcon/>,
+            LibraryAdd : ()=> <LibraryAddIcon/>,
+            Beenhere : ()=> <BeenhereIcon/>,
+            LocalOffer : ()=> <LocalOfferIcon/>
+
           }}
           columns={state.columns}
           data={state.data}
+          tableRef={materialTableRef}
+          initialFormData={initialFormData}
           actions={[
-            
             {
-                icon: ()=><LocalOfferIcon/>,
-                tooltip: 'Ajouter promo',
-                onClick: (event, rowData) => alert("You saved " + rowData.name)
-            }
+              icon: ()=> <LibraryAddIcon/>,
+              tooltip: 'Dupliquer',
+              position: "row",
+              onClick: (event, rowData) => {
+                const materialTable = materialTableRef.current;
 
+                console.log(materialTableRef.current)
+                console.log(rowData)
+
+                
+                setInitialFormData({
+                    ...rowData,
+                    nom : null
+                });
+                
+                materialTable.dataManager.changeRowEditing();
+                materialTable.setState({
+                  ...materialTable.dataManager.getRenderState(),
+                  showAddRow: true,
+                });
+              }
+            },
+            {
+              icon: ()=> <BeenhereIcon/>,
+              tooltip: 'activer/desactiver',
+              onClick: (event, rowData) => {
+                setModalActiverDesativer(true);
+                setDataToUpdate(rowData)
+              }
+            },
+            {
+              icon: ()=> <LocalOfferIcon/>,
+              tooltip: 'ajouter promo',
+              onClick: (event, rowData) => {
+                setModalAddPromo(true);
+                console.log(rowData)
+                setDataToUpdate1(rowData)
+              }
+            }
           ]}
           options={{
             selection: true,
             rowStyle: {
               height: '10px',
-            }
+            },
+            filtering: true
           }}
           editable={{
-            onRowAdd: (newData) =>
-              new Promise((resolve) => {
-                setTimeout(() => {
-                  resolve();
-                  handleAddPneu(newData.categorie, newData.type, newData.position, newData.marque, newData.collection, newData.largeur, newData.hauteur, newData.diametre, newData.charge, newData.vitesse, newData.plis, newData.designation_ag, newData.carburant, newData.adherence, newData.bruit, newData.marge, newData.promo)
-                  setState((prevState) => {
-                    const data = [...prevState.data];
-                    data.push(newData);
-                    return { ...prevState, data };
-                  });
-                }, 600);
-              }),
+
             onRowUpdate: (newData, oldData) =>
               new Promise((resolve) => {
                 setTimeout(() => {
                   resolve();
                   if (oldData) {
                       console.log(oldData)
-                    handleUpdatePneu(newData.categorie, newData.type, newData.position, newData.marque, newData.collection, newData.largeur, newData.hauteur, newData.diametre, newData.charge, newData.vitesse, newData.plis, newData.designation_ag, newData.carburant, newData.adherence, newData.bruit, newData.marge, newData.promo, oldData.pneu_id)
+                    handleUpdatePneu(newData.categorie, newData.type, newData.position, newData.marque, newData.collection, newData.largeur, newData.hauteur, newData.diametre, newData.charge, newData.vitesse, newData.plis, newData.designation_ag, newData.carburant, newData.adherence, newData.bruit, newData.marge, newData.promo, oldData.id_pneu_ag)
                     setState((prevState) => {
                       const data = [...prevState.data];
                       data[data.indexOf(oldData)] = newData;
@@ -197,8 +243,22 @@ const TablePneu = () => {
               }),
           }}
         />
+
+        <MyVerticallyCenteredModalActive
+            show={modalActiverDesativer}
+            onHide={() => setModalActiverDesativer(false)}
+            dataToUpdate = {dataToUpdate}
+            categorie = 'agricole'
+        />
+        <MyVerticallyCenteredModalPromo
+            show={modalAddPromo}
+            onHide={() => setModalAddPromo(false)}
+            dataToUpdate = {dataToUpdate1}
+            categorie = 'agricole'
+        />
         </Styles>
     );
 
 }      
 export default TablePneu;
+

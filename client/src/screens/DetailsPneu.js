@@ -388,11 +388,12 @@ function Detail(){
 
     useEffect(() => {
         var id = match.params.id_pneu
+        console.log("id", id)
         axios.post(`${process.env.REACT_APP_API_URL}/pneu/details`, {
             id
         })
         .then(res => {
-            console.log(res.data[0])
+           console.log(res.data[0])
            setPneu(res.data[0])
            setTotal((parseInt(commande.quantite)) * (parseInt(res.data[0].price) + parseInt(commande.frais_livraison)))
         })

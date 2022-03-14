@@ -133,7 +133,8 @@ const TableStock = (props) => {
             selection: true,
             rowStyle: {
               height: '10px',
-            }
+            },
+            filtering: true
           }}
           editable={{
             onRowAdd: (newData) =>

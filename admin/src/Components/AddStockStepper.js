@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {Link} from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles';
 import Stepper from '@material-ui/core/Stepper';
@@ -9,10 +9,12 @@ import Typography from '@material-ui/core/Typography';
 import styled from 'styled-components'
 import {Form, InputGroup, FormControl} from 'react-bootstrap'
 import axios from 'axios'
+import Autosuggest from 'react-autosuggest'
 
 
 //component 
 import TableMapping from '../Components/TableMapping'
+import TableStock from '../Components/TableFichierstock'
 
 //icon
 import {FiSearch} from 'react-icons/fi'
@@ -22,7 +24,7 @@ const FormStyle = styled.form`
     display:flex;
     flex-direction:column;
     width:100%;
-    height:200px;
+    height:auto;
     .form-row-1{
         display:flex;
         flex-direction:row;
@@ -60,6 +62,8 @@ const FormStyle = styled.form`
         border-radius:5px;
         border:none;
     }
+
+    
 `;
 
 const InfoPneu = styled.form`
@@ -71,6 +75,35 @@ const InfoPneu = styled.form`
     }
     .form-control{
       height:100%;
+    }
+
+    .radioList{
+      display:flex;
+      flex-direction : row;
+      align-items:center;
+    }
+
+    .radioInput{
+      margin: 0 10px;
+    }
+    .searchInput{
+      width : 90%;
+    }
+
+    .react-autosuggest__input{
+      width: 100% !important;
+      padding: 10px !important;
+    }
+
+    li{
+      list-style:none !important;
+    }
+
+    .resultat{
+      color : green;
+      display:flex;
+      flex-direction:row;
+      margin : 20px;
     }
 `;
 
@@ -103,8 +136,19 @@ export default function HorizontalLabelPositionBelowStepper(props) {
   const [message, setMessage] = useState('cliquer pour inserer')
   const [formDataStock, setFormDataStock] = useState(null)
 
+  const [categorie, setCategorie] = useState('auto')
+
   //produit non_mappee
   const [produits_non_mappee, setProduits_non_mappee] = useState([])
+  const [stock, setStock] = useState([])
+
+
+  const [country, setCountry] = React.useState("");
+  const [suggestions, setSuggestions] = React.useState([]);
+  const [searchRes, setSearchRes] = useState({
+    id : null,
+    designation : ""
+  })
 
 //_______________________________________File upload_______________________________________________  
   // handle file input change and store data in formDataStock
@@ -113,10 +157,28 @@ export default function HorizontalLabelPositionBelowStepper(props) {
     data.append('id_fournisseur', props.id_fournisseur)
     data.append('categoryImage', e.target.files[0])
     data.append('name', e.target.files[0].name)
-    console.log(e.target.files[0])
     setFormDataStock(data)
     setMessage(e.target.files[0].name)
   };
+
+  /*function handleSearch(){
+    axios.post(`${process.env.REACT_APP_API_URL}/get/centre/montage`, {ville})
+    .then(res => {
+        console.log(ville)
+        console.log(res.data)
+        setCentreMontage(res.data)
+        executeScroll()
+    })
+    .catch(err => {
+        console.log(err)
+    })
+  }*/
+
+  ///get/designations
+
+ const handleRadioChange = (event) => {
+   setCategorie(event.target.value)
+ }
 
   // Submit fichier stock
   const handleSubmit = (e) => {
@@ -136,7 +198,8 @@ export default function HorizontalLabelPositionBelowStepper(props) {
         //get data from server 
         setTimeout(() => {
           setProduits_non_mappee(res.data.produits_non_mappee)
-          console.log(res.data.produits_non_mappee)
+          setStock(res.data.stock)
+          console.log(res.data.stock)
           setProgressPercent(0);
           setMessage('Envoyé')
         }, 1000);
@@ -144,7 +207,7 @@ export default function HorizontalLabelPositionBelowStepper(props) {
 
       //handle errors
       .catch((err) => {
-        console.log(err.rresponse);
+        console.log(err.response);
         setTimeout(() => {
           setError({
             found: false,
@@ -160,8 +223,8 @@ export default function HorizontalLabelPositionBelowStepper(props) {
 //stepper functions
   function getSteps() {
     return [
-      'Choisir un fichier stock (CSV *) ',
-      'Mapper les produit non mappées'];
+      'Choisir un fichier stock (CSV *) '
+    ];
   }
   
   function getStepContent(stepIndex) {
@@ -191,18 +254,17 @@ export default function HorizontalLabelPositionBelowStepper(props) {
               </div>
               </div>
            </Form>
-            <Button type='submit' variant="contained" color="primary">
+            <Button style={{marginLeft: "86%"}} type='submit' variant="contained" color="primary">
               Envoyer
-              </Button>
+            </Button>
+            {message== "Envoyé" ? 
+              <TableStock stock={stock} />
+            : null
+            }
             </form>
         </FormStyle>
         )
-      case 1:
-        return (
-            <InfoPneu>
-              <TableMapping  produits_non_mappee = {produits_non_mappee}/>
-            </InfoPneu>
-        );
+      
       default:
         return 'etape non reconnue';
     }
@@ -257,3 +319,145 @@ export default function HorizontalLabelPositionBelowStepper(props) {
   );
 }
 
+/**
+ *            <InputGroup >
+                <Autocomplete
+                    id="free-solo-demo"
+                    onChange = {onDesignationChange}
+                    options={designations.map((option) => option.designation)}
+                    renderInput={(params) => (
+                    <TextField {...params} placeholder="Designation (ex : ...)" margin="none" variant="outlined" style={{padding:'0'}}/>
+                    )}
+                />
+                <InputGroup.Append>
+                    <Button variant="outline-secondary" >
+                        <FiSearch/>
+                    </Button>
+                </InputGroup.Append>
+              </InputGroup>
+
+
+               <div ref={wrapperRef}>
+                <InputGroup>
+                  <input 
+                      className = 'searchInput' 
+                      type= 'text'
+                      id="auto"
+                      onClick={() => setDisplay(!display)}
+                      placeholder="Type to search"
+                      value={search}
+                      onChange={event => setSearch(event.target.value)}
+                  />
+                  <InputGroup.Append>
+                      <Button style={{background:"#777"}} variant="outline-secondary" >
+                          <FiSearch/>
+                      </Button>
+                  </InputGroup.Append>
+                </InputGroup>
+                </div>
+
+
+
+                useEffect(() => {
+  let stoc = []
+  axios.post(`${process.env.REACT_APP_API_URL}/get/designations`, {categorie})
+  .then(res => { 
+    stoc = res.data
+    setDesignations(stoc)
+    
+  })
+  .catch(err => {
+    console.log(err)
+  })
+}, [categorie])
+
+
+              select designation_pneu, pneu_id from pneu_dimension where designation_pneu ilike '%bridgestone%'
+ */
+
+
+
+ /**
+  * 
+  * case 1:
+        return (
+            <InfoPneu>
+                <h3>Choisir une categorie (par defaut : Pneu Auto)</h3>
+                <div className='radioList'>
+                   <input className='radioInput' type='radio' value='auto' checked={categorie == 'auto'} onChange={handleRadioChange}/> 
+                   <p style={{paddingTop: '10px', marginRight:'30px'}}>Pneu Auto</p>
+                   <input className='radioInput' type='radio' value='moto' checked={categorie == 'moto'} onChange={handleRadioChange}/>
+                   <p style={{paddingTop: '10px', marginRight:'30px'}}>Pneu Moto</p> 
+                   <input className='radioInput' type='radio' value='poids-lourd' checked={categorie == 'poids-lourd'} onChange={handleRadioChange}/>
+                   <p style={{paddingTop: '10px', marginRight:'30px'}}>Pneu Poids Lourd</p> 
+                   <input className='radioInput' type='radio' value='agricole' checked={categorie == 'agricole'} onChange={handleRadioChange}/>
+                   <p style={{paddingTop: '10px', marginRight:'30px'}}>Pneu Agricole</p> 
+                </div>
+                <Autosuggest
+                   suggestions={suggestions}
+                   onSuggestionsFetchRequested = { async ({ value }) => {
+                      if (!value) {
+                        setSuggestions([]);
+                        return;
+                      }
+
+                      try {
+                        const response = await axios.post(
+                          `${process.env.REACT_APP_API_URL}/get/designations`, {categorie, value}
+                        );
+      
+                        setSuggestions(
+                          response.data.map(row => ({
+                            id: row.id,
+                            designation: row.designation
+                          }))
+                        );
+                      } catch (e) {
+                        setSuggestions([]);
+                      }
+                   }}
+                   onSuggestionsClearRequested={() => {
+                    setSuggestions([]);
+                  }}
+                  getSuggestionValue={suggestion => suggestion.designation}
+                  renderSuggestion={suggestion => (
+                    <div>
+                      {suggestion.designation}
+                    </div>
+                  )}
+                  onSuggestionSelected={(event, { suggestion, method }) => {
+                    if (method === "enter") {
+                      event.preventDefault();
+                    }
+                    setSearchRes({
+                      id : suggestion.id,
+                      designation : suggestion.designation
+                    })
+                    setCountry(suggestion.designation);
+                  }}
+                  inputProps={{
+                    placeholder: "Search for your designation",
+                    autoComplete: "abcd",
+                    value: country,
+                    name: "country",
+                    onChange: (_event, { newValue }) => {
+                      setCountry(newValue);
+                    }
+                  }}
+                  style={{width : '90%'}}
+                />
+                {searchRes.designation === "" ? null : 
+                  <div style={{marginTop:'20px'}}>
+                    <h10 style={{color:'#555'}}>Resultat</h10>
+                    <hr/>
+                    <div className='resultat'>
+                      <h8 style={{marginRight:'20px'}}>ID : {searchRes.id}</h8>
+                      <h8>Designation : {searchRes.designation}</h8>
+                    </div>
+                   </div>   
+                }
+              <hr/>
+              <TableMapping  produits_non_mappee = {produits_non_mappee}/>
+            </InfoPneu>
+        );
+  */

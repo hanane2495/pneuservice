@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import MaterialTable from 'material-table';
 import axios from 'axios'
 
@@ -16,9 +16,15 @@ import Search from "@material-ui/icons/Search"
  import EditIcon from '@material-ui/icons/Edit';
  import ClearIcon from '@material-ui/icons/Clear';
  import SaveIcon from '@material-ui/icons/Save';
+ import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
+ import BeenhereIcon from '@material-ui/icons/Beenhere';
  import LocalOfferIcon from '@material-ui/icons/LocalOffer';
 
  import styled from 'styled-components';
+
+ //components
+ import MyVerticallyCenteredModalActive from './ModalActiverDesactiver';
+ import MyVerticallyCenteredModalPromo from './ModalAddPromo';
 
 
 
@@ -32,9 +38,26 @@ import Search from "@material-ui/icons/Search"
  `
 
 const TablePneu = () => {
+
+  //modals
+  const [modalAddPromo, setModalAddPromo] = React.useState(false);
+  const [modalActiverDesativer, setModalActiverDesativer] = React.useState(false);
+
   const [pneus, setPneus] = useState([])
   const [promo, setPromo] = useState({})
   const [state, setState] = React.useState({});
+  const [initialFormData, setInitialFormData] = useState({})
+
+  const [dataToUpdate, setDataToUpdate] = useState([])
+  const [dataToUpdate1, setDataToUpdate1] = useState([])
+
+  const [listMarque, setListMarque] = useState([])
+  const [listCollection, setListCollection] = useState([])
+  const [marqueChoisi, setMarquechoisi] = useState(null)
+ 
+
+  const materialTableRef = useRef(null)
+
     
     function handleDeletePneu(listPneu){
         console.log(listPneu)
@@ -67,7 +90,10 @@ const TablePneu = () => {
       .catch(err => {
         console.log(err)
       })
+    }, []) 
 
+    /*
+    useEffect(() => {
       //get promos
       var pro = {}
       axios.post(`${process.env.REACT_APP_API_URL}/get/promo`)
@@ -79,40 +105,86 @@ const TablePneu = () => {
           configurable : true})
         })
         setPromo(pro)
+        console.log(pro)
       })
       .catch(err => {
         console.log(err)
       })
-    }, []) 
+    }, [])*/
+
+    //list des marques
+    useEffect(() => {
+      //get promos
+      var marques = {}
+      axios.post(`${process.env.REACT_APP_API_URL}/get/list/marque`)
+      .then(res => { 
+        res.data.map((marque) => {
+          Object.defineProperty(marques, `${marque.marque}`, {value : `${marque.marque}`,
+          writable : true,
+          enumerable : true,
+          configurable : true})
+        })
+        setListMarque(marques)
+        console.log(res.data)
+      })
+      .catch(err => {
+        console.log(err)
+      })
+    }, [])
+
+    /*
+    //list des collections
+    useEffect(() => {
+      //get promos
+      var collections = {}
+      axios.post(`${process.env.REACT_APP_API_URL}/get/list/collection`)
+      .then(res => { 
+        res.data.map((collection) => {
+          Object.defineProperty(collections, `${collection.collection}`, {value : `${collection.collection}`,
+          writable : true,
+          enumerable : true,
+          configurable : true})
+        })
+        setListMarque(collections)
+      })
+      .catch(err => {
+        console.log(err)
+      })
+    }, [])*/
     
     useEffect(() => {
         setState({
           columns: [
+            { title: 'statut', field: 'statut', render: rowData => rowData.statut == 'Actif' ? <p style={{color:'#8BC34A'}}>{rowData.statut}</p> : <p style={{color:'red'}}>{rowData.statut}</p>},
+            { title: 'promo', field: 'promo', render: rowData => rowData.promo == null ? null : <p style={{background:'#8BC34A', borderRadius:'50%', height:'40px', width:'40px', color:'white', display:'flex', justifyContent:'center', alignItems:'center'}}>- {rowData.promo}%</p>},
             { title: 'Designation', field: 'designation_pneu'},
             { title: 'Categorie', field: 'categorie'},
+            { title: 'Marque', field: 'marque', lookup : listMarque},
             { title: 'Collection', field: 'collection'},
-            { title: 'Marque', field: 'marque'},
             { title: 'Type', field: 'type'},
             { title: 'Largeur', field: 'largeur'},
-            { title: 'Hauteur', field: 'hauteur' },
+            { title: 'Hauteur', field: 'hauteur'},
             { title: 'Diametre', field: 'diametre'},
             { title: 'Charge', field: 'charge'},
             { title: 'Vitesse', field: 'vitesse'},
             { title: 'carburant', field: 'carburant'},
             { title: 'adherence', field: 'adherence'},
-            { title: 'bruit', field: 'bruit'},
-            { title: 'marge', field: 'marge'},
-            { title: 'promo', field: 'promo', lookup: promo}
+            { title: 'bruit', field: 'bruit'}
           ],
           data:pneus,
         }) 
       
     }, [pneus]) 
+
+    useEffect(() => {
+      console.log(marqueChoisi)
+    
+  }, [marqueChoisi])
       return (
         <Styles>
         <MaterialTable
           style={{width:'100%', height:'100%'}}
-          title=""
+          title="Pneu Auto"
           icons={{
             Check: () => <Check />,
             Export: () => <SaveAlt />,
@@ -129,24 +201,63 @@ const TablePneu = () => {
             Delete: () => < DeleteIcon/>,
             Edit: ()=><EditIcon/>,
             Clear : () => <ClearIcon/>,
-            Save : () => <SaveIcon/>
+            Save : () => <SaveIcon/>,
+            LibraryAdd : ()=> <LibraryAddIcon/>,
+            Beenhere : ()=> <BeenhereIcon/>,
+            LocalOffer : ()=> <LocalOfferIcon/>
+
           }}
           columns={state.columns}
           data={state.data}
+          tableRef={materialTableRef}
+          initialFormData={initialFormData}
           actions={[
-            
             {
-                icon: ()=><LocalOfferIcon/>,
-                tooltip: 'Ajouter promo',
-                onClick: (event, rowData) => alert("You saved " + rowData.name)
-            }
+              icon: ()=> <LibraryAddIcon/>,
+              tooltip: 'Dupliquer',
+              position: "row",
+              onClick: (event, rowData) => {
+                const materialTable = materialTableRef.current;
 
+                console.log(materialTableRef.current)
+                console.log(rowData)
+
+                
+                setInitialFormData({
+                    ...rowData,
+                    nom : null
+                });
+                
+                materialTable.dataManager.changeRowEditing();
+                materialTable.setState({
+                  ...materialTable.dataManager.getRenderState(),
+                  showAddRow: true,
+                });
+              }
+            },
+            {
+              icon: ()=> <BeenhereIcon/>,
+              tooltip: 'activer/desactiver',
+              onClick: (event, rowData) => {
+                setModalActiverDesativer(true);
+                setDataToUpdate(rowData)
+              }
+            },
+            {
+              icon: ()=> <LocalOfferIcon/>,
+              tooltip: 'ajouter promo',
+              onClick: (event, rowData) => {
+                setModalAddPromo(true);
+                setDataToUpdate1(rowData)
+              }
+            }
           ]}
           options={{
             selection: true,
             rowStyle: {
               height: '10px',
-            }
+            },
+            filtering: true
           }}
           editable={{
             onRowAdd: (newData) =>
@@ -156,6 +267,7 @@ const TablePneu = () => {
                   handleAddPneu(newData.categorie, newData.type, newData.marque, newData.collection, newData.largeur, newData.hauteur, newData.diametre, newData.charge, newData.vitesse, newData.designation_pneu, newData.carburant, newData.adherence, newData.bruit, newData.marge, newData.promo)
                   setState((prevState) => {
                     const data = [...prevState.data];
+                    setMarquechoisi(newData.marque)
                     data.push(newData);
                     return { ...prevState, data };
                   });
@@ -178,7 +290,7 @@ const TablePneu = () => {
             onRowDelete: (oldData) =>
               new Promise((resolve) => {
                 setTimeout(() => {
-                  let listPneu = [oldData.id_pneu_ag]
+                  let listPneu = [oldData.pneu_id]
                   handleDeletePneu(listPneu)
                   resolve();
                   setState((prevState) => {
@@ -190,6 +302,20 @@ const TablePneu = () => {
               }),
           }}
         />
+
+        <MyVerticallyCenteredModalActive
+            show={modalActiverDesativer}
+            onHide={() => setModalActiverDesativer(false)}
+            dataToUpdate = {dataToUpdate}
+            categorie = 'auto'
+        />
+        <MyVerticallyCenteredModalPromo
+            show={modalAddPromo}
+            onHide={() => setModalAddPromo(false)}
+            dataToUpdate = {dataToUpdate1}
+            categorie = 'auto'
+        />
+
       </Styles>
     );
 }      

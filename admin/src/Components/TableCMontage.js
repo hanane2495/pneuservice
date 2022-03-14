@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import MaterialTable from 'material-table';
 import axios from 'axios'
 
@@ -16,6 +16,7 @@ import Search from "@material-ui/icons/Search"
  import EditIcon from '@material-ui/icons/Edit';
  import ClearIcon from '@material-ui/icons/Clear';
  import SaveIcon from '@material-ui/icons/Save';
+ import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
 
  import styled from 'styled-components';
 
@@ -33,6 +34,9 @@ import Search from "@material-ui/icons/Search"
 const TableCMontage = () => {
   const [centreMontage, setCentreMontage] = useState([])
   const [state, setState] = React.useState({});
+  const [initialFormData, setInitialFormData] = useState({})
+
+  const materialTableRef = useRef(null)
 
    
     function trueFalse(service){
@@ -66,7 +70,9 @@ const TableCMontage = () => {
       let cm = []
       axios.post(`${process.env.REACT_APP_API_URL}/get/all/centre/montage`)
       .then(res => { 
+        console.log(res.data)
         cm = res.data
+
         setCentreMontage(cm)
       })
       .catch(err => {
@@ -116,15 +122,42 @@ const TableCMontage = () => {
             Delete: () => < DeleteIcon/>,
             Edit: ()=><EditIcon/>,
             Clear : () => <ClearIcon/>,
-            Save : () => <SaveIcon/>
+            Save : () => <SaveIcon/>,
+            LibraryAdd : ()=> <LibraryAddIcon/>
           }}
           columns={state.columns}
           data={state.data}
          
           options={{
             actionsColumnIndex: -1,
-            selection: true,
+            filtering: true
           }}
+          tableRef={materialTableRef}
+          initialFormData={initialFormData}
+          actions={[
+            {
+              icon: ()=> <LibraryAddIcon/>,
+              tooltip: 'Dupliquer',
+              onClick: (event, rowData) => {
+                const materialTable = materialTableRef.current;
+
+                console.log(materialTableRef.current)
+                console.log(rowData)
+
+                
+                setInitialFormData({
+                    ...rowData,
+                    nom : null
+                });
+                
+                materialTable.dataManager.changeRowEditing();
+                materialTable.setState({
+                  ...materialTable.dataManager.getRenderState(),
+                  showAddRow: true,
+                });
+              }
+            }
+          ]}
           components={{
             Container: props => <div style={{background: 'none'}}>{props.children}</div>
             }}

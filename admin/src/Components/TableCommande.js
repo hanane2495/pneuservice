@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import MaterialTable from 'material-table';
 import axios from 'axios';
 
@@ -16,8 +16,12 @@ import Search from "@material-ui/icons/Search"
  import EditIcon from '@material-ui/icons/Edit';
  import ClearIcon from '@material-ui/icons/Clear';
  import SaveIcon from '@material-ui/icons/Save';
+ import AssignmentTurnedInIcon from '@material-ui/icons/AssignmentTurnedIn';
 
  import styled from 'styled-components';
+
+ //components
+ import MyVerticallyCenteredModal from './ModalValiderCommande';
 
 
 
@@ -31,8 +35,11 @@ import Search from "@material-ui/icons/Search"
  `
 
 const TableCommande = () => {
+
     const [commandes, setCommandes] = useState([])
     const [state, setState] = React.useState({});
+    const [modalShow, setModalShow] = React.useState(false);
+    const [idCommande, setIdCommande] = useState(null)
       
       function handleDeleteCommande (id_commande, code_commande){
         axios.post(`${process.env.REACT_APP_API_URL}/delete/commande`, {id_commande, code_commande})
@@ -63,6 +70,7 @@ const TableCommande = () => {
       useEffect(() => {
           setState({
             columns: [
+              { title: 'Etat', field: 'etat'},
               { title: 'Code', field: 'code_commande'},
               { title: 'Date', field: 'date_commande'},
               { title: 'Nom client', field: 'nom_client'},
@@ -103,10 +111,12 @@ const TableCommande = () => {
             Delete: () => < DeleteIcon/>,
             Edit: ()=><EditIcon/>,
             Clear : () => <ClearIcon/>,
-            Save : () => <SaveIcon/>
+            Save : () => <SaveIcon/>,
+            AssignmentTurnedIn : () => <AssignmentTurnedInIcon/>
           }}
           columns={state.columns}
           data={state.data}
+         
           actions={[
             {
               icon: () => <DeleteIcon />,
@@ -117,14 +127,21 @@ const TableCommande = () => {
               icon: ()=><EditIcon/>,
               tooltip: 'Modifier',
               onClick: (event, rowData) => console.log(rowData)
+            },
+            {
+              icon: ()=><AssignmentTurnedInIcon/>,
+              tooltip: 'changer Etat',
+              position: "row",
+              onClick: (event, rowData) => {setModalShow(true); setIdCommande(rowData.id_commande); console.log(rowData.id_commande)}
             }
-
+            
           ]}
           options={{
             selection: true,
             rowStyle: {
               height: '10px',
-            }
+            },
+            filtering: true
           }}
           components={{
             Container: props => <div style={{background: 'none'}}>{props.children}</div>
@@ -170,6 +187,11 @@ const TableCommande = () => {
                 }, 600);
               }),
           }}
+        />
+        <MyVerticallyCenteredModal
+            show={modalShow}
+            onHide={() => setModalShow(false)}
+            id_commande = {idCommande}
         />
         </Styles>
     );

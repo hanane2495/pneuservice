@@ -33,6 +33,7 @@ import Search from "@material-ui/icons/Search"
 const TableMapping = (props) => {
   const [produit, setFournisseurs] = useState([])
   const [state, setState] = React.useState({});
+
   
 
 //________________________________mapper produits non mappee___________________________________
@@ -44,10 +45,13 @@ const TableMapping = (props) => {
     })
   }
 
+  
+
   useEffect(() => {
     setState({
       columns: [
         { title: 'ID pneu fournisseur', field: 'suppliers_code'},  
+        { title: 'Designation fournisseur', field: 'designationF'}, 
         { title: 'ID fournisseur', field: 'id_fournisseur'},
         { title: 'Designation', field: 'designation'},
         { title: 'ID pneu service', field: 'id_pneu_service'},
@@ -102,7 +106,8 @@ const TableMapping = (props) => {
             selection: true,
             rowStyle: {
               height: '10px',
-            }
+            },
+            filtering: true
           }}
           editable={{
             onRowAdd: (newData) =>

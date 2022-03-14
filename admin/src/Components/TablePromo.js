@@ -83,11 +83,9 @@ const TableFournisseur = () => {
           columns: [
             { title: 'Label Promo', field: 'nom_promo'},
             { title: 'Slogan', field: 'slogan_promo'},
-            { title: 'Valeur', field: 'valeur_promo'},
-            { title: 'Type', field: 'type_promo'},
+            { title: 'Valeur', field: 'valeur_promo', type:'numeric'},
+            { title: 'Type', field: 'type_promo', lookup : {Remise : 'Remise', Code_promo : 'code Promo'}},
             { title: 'Code Promo', field: 'code_promo'},
-            { title: 'Date debut', field: 'date_ajout'},
-            { title: 'Date fin', field: 'date_fin' }
           ],
           data:promo,
         }) 
@@ -126,7 +124,8 @@ const TableFournisseur = () => {
           options={{
             rowStyle: {
               height: '10px',
-            }
+            },
+            filtering: true
           }}
           components={{
             Container: props => <div style={{background: 'none'}}>{props.children}</div>
@@ -136,6 +135,7 @@ const TableFournisseur = () => {
               new Promise((resolve) => {
                 setTimeout(() => {
                   resolve();
+                  console.log(newData)
                   handleAddPromo(newData.nom_promo, newData.slogan_promo, newData.valeur_promo, newData.type_promo, newData.code_promo)
                   setState((prevState) => {
                     const data = [...prevState.data];

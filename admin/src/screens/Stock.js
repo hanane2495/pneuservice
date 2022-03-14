@@ -56,129 +56,131 @@ const Styles = styled.div`
 
 
 const Commande = () => {
+  const [stock, setStock] = useState([])
+    const [state, setState] = React.useState({});
+      
+      function handleDeleteStock(liststock){
+        axios.post(`${process.env.REACT_APP_API_URL}/delete/stock`, {liststock})
+        .then(res => {
+          console.log(res.data.message)
+        })
+      }
+  
+      function handleUpdateStock(suppliers_code, qte, price, id_stock){
+        axios.post(`${process.env.REACT_APP_API_URL}/update/stock`, {suppliers_code, qte, price, id_stock})
+        .then(res => {
+          console.log(res.data.message)
+        })
+      }
+      /*function handleAddstock(id_pneu_service, id_pneu_fournisseur, designation, id_fournisseur){
+        axios.post(`${process.env.REACT_APP_API_URL}/add/Fournisseur`, {id_pneu_service, id_pneu_fournisseur, designation, id_fournisseur})
+        .then(res => {
+          console.log(res.data.message)
+        })
+      }*/
+      
+      useEffect(() => {
+        let stoc = []
+        axios.post(`${process.env.REACT_APP_API_URL}/get/stock`)
+        .then(res => { 
+          stoc = res.data
+          setStock(stoc)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+      }, []) 
 
-  const [data, setData] = useState({ pneus: [] });
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const result = await axios(
-        'https://hn.algolia.com/api/v1/search?query=redux',
-      );
- 
-      setData(result.data);
-    };
- 
-    fetchData();
-  }, []);
-
-  const [state, setState] = useState({
-        columns: [
-          { title: 'ID supplier', field: 'code_fournisseur' },
-          { title: 'Prix', field: 'prix' },
-          { title: 'Qt', field: 'qt' },
-          { title: 'ID Pneu', field: 'id_pneu' },
-        ],
-        data: data.pneus,
-      });
+      useEffect(() => {
+        setState({
+          columns: [
+            { title: 'ID supplier', field: 'suppliers_code' },
+            { title: 'designation', field: 'designation_f' },
+            { title: 'Prix', field: 'price', type : 'numeric'},
+            { title: 'Qt', field: 'qte', type : 'numeric'},
+            { title: 'Date ajout', field: 'date_ajout' },
+            { title: 'Fournisseur', field: 'nom' }
+          ],
+          data:stock,
+        }) 
+      
+    }, [stock]) 
 
     return(
         <React.Fragment>
             <Styles>
-                <div className='table-commandes'>
-                <div>
-        <h6>Ajouter un nouveau stock </h6>
-        <Form style={{marginBottom:'5%'}}>
-          <Form.File 
-            id="custom-file"
-            label="cliquer pour inserer"
-            custom
-          />
-        </Form>
-      </div>
-                <MaterialTable
-          style={{width:'100%', height:'100%'}}
-          title="Stock F-001"
-          icons={{
-            Check: () => <Check />,
-            Export: () => <SaveAlt />,
-            Filter: () => <FilterList />,
-            FirstPage: () => <FirstPage />,
-            LastPage: () => <LastPage />,
-            NextPage: () => <ChevronRight />,
-            PreviousPage: () => <ChevronLeft />,
-            Search: () => <Search />,
-            ThirdStateCheck: () => <DeleteIcon />,
-            ViewColumn: () => <ViewColumn />,
-            DetailPanel: () => <ChevronRight />,
-            Add: () => <AddBoxIcon/>,
-            Delete: () => < DeleteIcon/>,
-            Edit: ()=><EditIcon/>,
-            Clear : () => <ClearIcon/>,
-            Save : () => <SaveIcon/>
-          }}
-          columns={state.columns}
-          data={state.data}
-          actions={[
-            {
-              icon: () => <SaveAlt />,
-              tooltip: 'Telecharger',
-              onClick: (event, rowData) => alert("You saved " + rowData.name)
-            },
-            {
-                icon: () => <DeleteIcon />,
-                tooltip: 'Telecharger',
-                onClick: (event, rowData) => alert("You saved " + rowData.name)
-            },
-            {
-                icon: ()=><EditIcon/>,
-                tooltip: 'Telecharger',
-                onClick: (event, rowData) => alert("You saved " + rowData.name)
-            }
-
-          ]}
-          options={{
-            actionsColumnIndex: -1,
-            selection: true
-          }}
-          editable={{
-            onRowAdd: (newData) =>
-              new Promise((resolve) => {
-                setTimeout(() => {
-                  resolve();
-                  setState((prevState) => {
-                    const data = [...prevState.data];
-                    data.push(newData);
-                    return { ...prevState, data };
-                  });
-                }, 600);
-              }),
-            onRowUpdate: (newData, oldData) =>
-              new Promise((resolve) => {
-                setTimeout(() => {
-                  resolve();
-                  if (oldData) {
-                    setState((prevState) => {
-                      const data = [...prevState.data];
-                      data[data.indexOf(oldData)] = newData;
-                      return { ...prevState, data };
-                    });
-                  }
-                }, 600);
-              }),
-            onRowDelete: (oldData) =>
-              new Promise((resolve) => {
-                setTimeout(() => {
-                  resolve();
-                  setState((prevState) => {
-                    const data = [...prevState.data];
-                    data.splice(data.indexOf(oldData), 1);
-                    return { ...prevState, data };
-                  });
-                }, 600);
-              }),
-          }}
-        />
-                </div>        
+                  <div className='table-commandes'>
+                  <MaterialTable
+                  style={{width:'100%', height:'100%'}}
+                  title="Stock"
+                  icons={{
+                    Check: () => <Check />,
+                    Export: () => <SaveAlt />,
+                    Filter: () => <FilterList />,
+                    FirstPage: () => <FirstPage />,
+                    LastPage: () => <LastPage />,
+                    NextPage: () => <ChevronRight />,
+                    PreviousPage: () => <ChevronLeft />,
+                    Search: () => <Search />,
+                    ThirdStateCheck: () => <DeleteIcon />,
+                    ViewColumn: () => <ViewColumn />,
+                    DetailPanel: () => <ChevronRight />,
+                    Add: () => <AddBoxIcon/>,
+                    Delete: () => < DeleteIcon/>,
+                    Edit: ()=><EditIcon/>,
+                    Clear : () => <ClearIcon/>,
+                    Save : () => <SaveIcon/>
+                  }}
+                  columns={state.columns}
+                  data={state.data}
+                  actions={[
+                    
+                  ]}
+                  options={{
+                    actionsColumnIndex: -1,
+                  }}
+                  editable={{
+                    onRowAdd: (newData) =>
+                      new Promise((resolve) => {
+                        setTimeout(() => {
+                          resolve();
+                          setState((prevState) => {
+                            const data = [...prevState.data];
+                            data.push(newData);
+                            return { ...prevState, data };
+                          });
+                        }, 600);
+                      }),
+                    onRowUpdate: (newData, oldData) =>
+                      new Promise((resolve) => {
+                        setTimeout(() => {
+                          resolve();
+                          if (oldData) {
+                            handleUpdateStock(newData.suppliers_code, newData.qte, newData.price, oldData.id_stock)
+                            setState((prevState) => {
+                              const data = [...prevState.data];
+                              data[data.indexOf(oldData)] = newData;
+                              return { ...prevState, data };
+                            });
+                          }
+                        }, 600);
+                      }),
+                    onRowDelete: (oldData) =>
+                      new Promise((resolve) => {
+                        setTimeout(() => {
+                          resolve();
+                          let listStock = [oldData.id_stock]
+                          handleDeleteStock(listStock)
+                          setState((prevState) => {
+                            const data = [...prevState.data];
+                            data.splice(data.indexOf(oldData), 1);
+                            return { ...prevState, data };
+                          });
+                        }, 600);
+                      }),
+                  }}
+                />
+              </div>        
             </Styles>
         </React.Fragment>
         

@@ -272,7 +272,7 @@ function Home(props){
     //get all Largeurs, vitesses et marques
     
     useEffect(() => {
-        axios.get(`${process.env.REACT_APP_API_URL}/search/dimension/largeur`)
+        axios.post(`${process.env.REACT_APP_API_URL}/search/dimension/largeur`)
         .then(res => {
             var lars = []
             res.data.map((larg) => {

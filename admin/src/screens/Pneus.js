@@ -44,6 +44,7 @@ const Styles = styled.div`
 
 
 const Pneu = () => {
+    
     return(
         <React.Fragment>
             <Styles>
@@ -67,16 +68,6 @@ const Pneu = () => {
                     <Tab eventKey="pneu-ag" title="Pneu Agricole" >
                         <div className='tab-container'>
                             <TablePneuAgricole />
-                        </div>
-                    </Tab>
-                    <Tab eventKey="collections" title="Collections" >
-                        <div className='tab-container'>
-                            <TablePneu />
-                        </div>
-                    </Tab>
-                    <Tab eventKey="marques" title="Marques" >
-                        <div className='tab-container'>
-                            <TablePneu />
                         </div>
                     </Tab>
               </Tabs>   

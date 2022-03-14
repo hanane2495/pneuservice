@@ -11,9 +11,11 @@ import './App.css';
 
 
 //icon
-import { FaHome, FaShoppingCart, FaTruck, FaBullhorn } from 'react-icons/fa';
+import { FaHome, FaShoppingCart, FaTruck, FaCodeBranch, FaPager } from 'react-icons/fa';
 import { GiCarWheel, GiAutoRepair } from "react-icons/gi";
-import {MdLocalOffer} from 'react-icons/md'
+import {MdLocalOffer, MdStore} from 'react-icons/md'
+import {FiLayers} from 'react-icons/fi'
+import {BsFillBootstrapFill} from 'react-icons/bs'
 
 
 //components
@@ -34,6 +36,9 @@ import ForgetPassword from './screens/ForgetPassword'
 import ResetPassword from './screens/ResetPassword'
 import NotFound from './screens/NotFound'
 import Publicite from './screens/Publicite'
+import Marques from './screens/Marques'
+import Collections from './screens/Collections'
+import Mapping from './screens/Mapping'
 
 //Private Routes
 import PrivateRoute from './routes/PrivateRoute';
@@ -53,6 +58,11 @@ const Styles =styled.div`
     -webkit-transition:  0.9s ; /* Safari 和 Chrome */
     -o-transition:  0.9s ; /* Opera */
     background:#fff;
+
+    @media (min-width: 2560px) {
+      grid-template-rows: 5% 95%;
+      grid-template-columns: 8% 92%;
+    }
   }
   .grid-layout{
       height: 100vh;
@@ -68,6 +78,11 @@ const Styles =styled.div`
     -webkit-transition: 0.9s ; /* Safari 和 Chrome */
     -o-transition: 0.9s ; /* Opera */
      background:#fff;
+
+     @media (min-width: 2560px) {
+      grid-template-rows: 5% 95%;
+      grid-template-columns: 3% 97%;
+     }
      }
      
 `;
@@ -130,8 +145,8 @@ function App() {
                                                             }
                                                           }}
                           />
-                          <SideNav.Nav defaultSelected="Acceuil">
-                              <NavItem eventKey="Acceuil">
+                          <SideNav.Nav defaultSelected="acceuil">
+                              <NavItem eventKey="acceuil">
                                   <NavIcon>
                                       <FaHome style={{ fontSize: '1.75em' }} />
                                   </NavIcon>
@@ -139,7 +154,7 @@ function App() {
                                       Home
                                   </NavText>
                               </NavItem>
-                              <NavItem eventKey="Commandes">
+                              <NavItem eventKey="commandes">
                                   <NavIcon>
                                       <FaShoppingCart style={{ fontSize: '1.75em' }} />
                                   </NavIcon>
@@ -147,7 +162,7 @@ function App() {
                                     Commandes
                                   </NavText>
                               </NavItem>
-                              <NavItem eventKey="Fournisseurs">
+                              <NavItem eventKey="fournisseurs">
                                   <NavIcon>
                                       <FaTruck style={{ fontSize: '1.75em' }} />
                                   </NavIcon>
@@ -155,15 +170,23 @@ function App() {
                                     Fournisseurs
                                   </NavText>
                               </NavItem>
-                              <NavItem eventKey="Centres_de_montages">
+                              <NavItem eventKey="stock">
                                   <NavIcon>
-                                      <GiAutoRepair style={{ fontSize: '1.75em' }} />
+                                      <MdStore style={{ fontSize: '1.75em' }} />
                                   </NavIcon>
                                   <NavText>
-                                    Centre de Montage
+                                    Stocks
                                   </NavText>
                               </NavItem>
-                              <NavItem eventKey="Pneus">
+                              <NavItem eventKey="mapping">
+                                  <NavIcon>
+                                      <FaCodeBranch style={{ fontSize: '1.75em' }} />
+                                  </NavIcon>
+                                  <NavText>
+                                    Mappings
+                                  </NavText>
+                              </NavItem>
+                              <NavItem eventKey="pneus">
                                   <NavIcon>
                                       <GiCarWheel style={{ fontSize: '1.75em' }} />
                                   </NavIcon>
@@ -171,7 +194,23 @@ function App() {
                                     Pneus
                                   </NavText>
                               </NavItem>
-                              <NavItem eventKey="Promo">
+                              <NavItem eventKey="collections">
+                                  <NavIcon>
+                                      <FiLayers style={{ fontSize: '1.75em' }} />
+                                  </NavIcon>
+                                  <NavText>
+                                     Collections
+                                  </NavText>
+                              </NavItem>
+                              <NavItem eventKey="marques">
+                                  <NavIcon>
+                                      <BsFillBootstrapFill style={{ fontSize: '1.75em' }} />
+                                  </NavIcon>
+                                  <NavText>
+                                     Marques
+                                  </NavText>
+                              </NavItem>
+                              <NavItem eventKey="promo">
                                   <NavIcon>
                                       <MdLocalOffer style={{ fontSize: '1.75em' }} />
                                   </NavIcon>
@@ -179,15 +218,22 @@ function App() {
                                     Promo
                                   </NavText>
                               </NavItem>
-                              <NavItem eventKey="Publicite">
+                              <NavItem eventKey="centres_de_montages">
                                   <NavIcon>
-                                      <FaBullhorn style={{ fontSize: '1.75em' }} />
+                                      <GiAutoRepair style={{ fontSize: '1.75em' }} />
                                   </NavIcon>
                                   <NavText>
-                                    Pub
+                                    Centre de Montage
                                   </NavText>
                               </NavItem>
-                              
+                              <NavItem eventKey="pages">
+                                  <NavIcon>
+                                      <FaPager style={{ fontSize: '1.75em' }} />
+                                  </NavIcon>
+                                  <NavText>
+                                    Pages
+                                  </NavText>
+                              </NavItem>
                           </SideNav.Nav>
                       </SideNav>
                    </AsideLeft>
@@ -196,17 +242,20 @@ function App() {
                    </Nav>
                    <Main>
                       <main style={{height:'100%'}}>
-                          <PrivateRoute  path='/Acceuil'  component={props => <Acceuil closed={toggled}/>}/>
-                          <PrivateRoute  path='/Commandes'  component={props =><Commande />}/>
-                          <PrivateRoute  path='/Fournisseurs'  component={props =><Fournisseurs />}/>
-                          <PrivateRoute  path='/Centres_de_montages'  component={props =><CentreMontage />}/>
-                          <PrivateRoute  path='/Pneus'  component={props =><Pneus />}/>
-                          <PrivateRoute  path='/Promo'  component={props =><Promo />}/>
-                          <PrivateRoute  path='/Product'  component={props =><Product />}/>
-                          <PrivateRoute  path='/Stock'  component={props =><Stock />}/>
-                          <PrivateRoute  path='/Profile'  component={props =><Profile />}/>
-                          <PrivateRoute  path='/Ajouter_Utilisateur'  component={props =><AddUser />}/>
-                          <PrivateRoute  path='/Publicite'  component={props =><Publicite />}/>
+                          <PrivateRoute  path='/acceuil'  component={props => <Acceuil closed={toggled}/>}/>
+                          <PrivateRoute  path='/commandes'  component={props =><Commande />}/>
+                          <PrivateRoute  path='/fournisseurs'  component={props =><Fournisseurs />}/>
+                          <PrivateRoute  path='/centres_de_montages'  component={props =><CentreMontage />}/>
+                          <PrivateRoute  path='/pneus'  component={props =><Pneus />}/>
+                          <PrivateRoute  path='/promo'  component={props =><Promo />}/>
+                          <PrivateRoute  path='/product'  component={props =><Product />}/>
+                          <PrivateRoute  path='/stock'  component={props =><Stock />}/>
+                          <PrivateRoute  path='/mapping'  component={props =><Mapping />}/>
+                          <PrivateRoute  path='/profile'  component={props =><Profile />}/>
+                          <PrivateRoute  path='/ajouter_Utilisateur'  component={props =><AddUser />}/>
+                          <PrivateRoute  path='/pages'  component={props =><Publicite />}/>
+                          <PrivateRoute  path='/collections'  component={props =><Collections />}/>
+                          <PrivateRoute  path='/marques'  component={props =><Marques />}/>
 
                       </main> 
                    </Main>
@@ -224,56 +273,20 @@ export default App;
 
 
 /**
- *<Route component={props => <NotFound/>}/>
-
- * 
- * .sidenav---collapsed---LQDEv {
-    transition: min-width 0.9s;
-}
-
-<div className='div-aside'>
-                      <Aside />
-                   </div> 
-
-                   .div-aside{
-    grid-area:'aside';
-    background:blue;
-
-  }
-
-
-  const Styles = styled.div`
-  .app-body{
-    height: 100vh;
-    width:100vw;
-    margin:0;
-    display:grid;
-    grid-template-rows: 1fr 6fr;
-    grid-template-columns: 1fr 20fr;
-    grid-template-areas:
-      "sidebar navbar"
-      "sidebar main";
-  }
-  .sidebar-div{
-    background:blue;
-    grid-area:'sidebar';
-  }
-  .div-navbar{
-    background:red;
-    grid-area:'navbar';
-  }
-  .new-main{
-    grid-area:'main';
-    width: auto;
-    margin-left:250px;
-    transition:0.9s;
-  }
-  .old-main{
-    background:grey;
-    grid-area:'main';
-    transition:0.9s
-  }
-  
-  
-`;
+ * <NavItem eventKey="stock">
+                                  <NavIcon>
+                                      <MdStore style={{ fontSize: '1.75em' }} />
+                                  </NavIcon>
+                                  <NavText>
+                                    Stocks
+                                  </NavText>
+                              </NavItem>
+                              <NavItem eventKey="mapping">
+                                  <NavIcon>
+                                      <FaCodeBranch style={{ fontSize: '1.75em' }} />
+                                  </NavIcon>
+                                  <NavText>
+                                    Mappings
+                                  </NavText>
+                              </NavItem>
  */
